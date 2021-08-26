@@ -8,4 +8,4 @@
  */
 
 rootProject.name = 'javacpp-presets-immersed'
-include 'template-generator'
+include 'javacpp-presets-immersed-template-generator'
