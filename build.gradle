@@ -1,0 +1,23 @@
+plugins {
+	id 'eclipse'
+}
+
+version "${javacppVersion}"
+
+allprojects {
+	apply plugin: "eclipse"
+
+	repositories {
+	    maven { url 'https://repo.gradle.org/gradle/libs-releases' }
+	    mavenCentral()
+	}
+}
+
+subprojects {
+	apply plugin: "java-library"
+	
+	dependencies {
+		api "org.bytedeco:javacpp:$javacppVersion"
+		implementation "org.bytedeco:javacpp-platform:$javacppVersion"
+	}
+}

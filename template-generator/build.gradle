@@ -1,0 +1,14 @@
+plugins {
+	id 'antlr'
+	id 'org.inferred.processors' version '3.3.0'
+}
+
+dependencies {
+	antlr 'org.antlr:antlr4:4.7.2'
+	processor 'org.inferred:freebuilder:2.7.0'
+}
+
+generateGrammarSource {
+	outputDirectory = file("build/generated-src/antlr/main/org/immersed/grammars")
+    arguments += ["-package", "org.immersed.grammars"]
+}
