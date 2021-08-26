@@ -19,5 +19,21 @@ subprojects {
 	dependencies {
 		api "org.bytedeco:javacpp:$javacppVersion"
 		implementation "org.bytedeco:javacpp-platform:$javacppVersion"
+		
+		implementation platform("org.springframework.boot:spring-boot-dependencies:2.5.0")
+
+		implementation "org.slf4j:slf4j-simple"
+		implementation "org.bytedeco:javacpp-platform:$javacppVersion"
+	
+		testImplementation 'org.junit.jupiter:junit-jupiter'
+		testImplementation 'org.assertj:assertj-core'
+		testImplementation 'org.mockito:mockito-core'
+	}
+	
+	test {
+		useJUnitPlatform()
+		testLogging {
+			events "passed", "skipped", "failed"
+		}
 	}
 }

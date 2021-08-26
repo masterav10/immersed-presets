@@ -8,4 +8,5 @@
  */
 
 rootProject.name = 'immersed-presets'
+include 'immersed-presets-cub'
 include 'immersed-presets-template-generator'
