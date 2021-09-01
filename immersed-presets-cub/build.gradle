@@ -6,7 +6,13 @@ plugins {
 version "$cudaPresetsVersion-$javacppVersion"
 
 dependencies {
-	api "org.bytedeco:cuda-platform:$cudaPresetsVersion-${javacppVersion}"
+	api "org.bytedeco:javacpp:$javacppVersion"
+	implementation "org.bytedeco:javacpp-platform:$javacppVersion"
+	api "org.bytedeco:cuda-platform:$version"
+	
+	javacppPlatform "org.bytedeco:javacpp-platform:$javacppVersion"
+	javacppPlatform "org.bytedeco:cuda-platform:$version"
+	javacppPlatform "org.bytedeco:cuda-platform:$version-$javacppPlatform"
 }
 
 tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
@@ -23,7 +29,8 @@ javacppBuildCommand {
 javacppBuildParser {
     // typically set here the classOrPackageNames to class names implementing InfoMap
     
-    classOrPackageNames = "org.bytedeco.cuda.cub.presets"
+    classOrPackageNames = ['org.bytedeco.cuda.cub.presets.*']
+    outputDirectory = file("$buildDir/generated/sources/javacpp/")
 }
 
 javacppBuildCompiler {
