@@ -9,4 +9,5 @@
 
 rootProject.name = 'immersed-presets'
 include 'immersed-presets-cub'
+include 'immersed-presets-gradle'
 include 'immersed-presets-template-generator'
