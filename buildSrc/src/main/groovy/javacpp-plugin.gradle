@@ -110,5 +110,5 @@ jar {
 	from sourceSets.javacpp.java
 }
 
-tasks['cleanEclipse'].dependsOn clean
-tasks['eclipseClasspath'].dependsOn javacppJniGenerate
+// tasks['cleanEclipse'].dependsOn clean
+// tasks['eclipseClasspath'].dependsOn javacppJniGenerate
