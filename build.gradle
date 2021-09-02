@@ -1,19 +1,29 @@
+// inherit from buildSrc to prevent duplicates
+Properties properties = new Properties()
+FileInputStream input = new FileInputStream(file('buildSrc/gradle.properties'))
+properties.load(input)
+input.close()
+
+for (String key : properties.stringPropertyNames()) {
+	ext.set(key, properties.getProperty(key))
+}
+
+apply plugin: 'eclipse'
+apply plugin: 'java-library'
+
 version "${javacppVersion}"
 
-allprojects {
+subprojects {
+	group = 'org.bytedeco.presets'
+	
 	apply plugin: "eclipse"
+	apply plugin: "java-library"
 	
 	repositories {
 	    mavenLocal()
 	    mavenCentral()
 	    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 	}
-}
-
-subprojects {
-	apply plugin: "java-library"
-	
-	group = 'org.bytedeco.presets'
 	
 	dependencies {		
 		implementation platform("org.springframework.boot:spring-boot-dependencies:2.5.0")

@@ -1,0 +1,110 @@
+plugins {
+	id 'java-library'
+}
+
+ext {
+	javacppPlatform = 'windows-x86_64'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+	javacpp {
+		compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+		java {
+			srcDirs = ["${buildDir}/javacpp/java"]
+		}
+		resources {
+			srcDirs = ["${buildDir}/javacpp/resources"]
+		}
+	}
+	
+	test {
+		compileClasspath += sourceSets.javacpp.output
+        runtimeClasspath += sourceSets.javacpp.output
+	}
+}
+
+configurations {
+    javacppImplementation.extendsFrom implementation
+    javacppRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+	api "org.bytedeco:javacpp:$javacppVersion"
+}
+
+task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
+	ext {
+		outputDir = "${buildDir}/javacpp/java"
+		props = "${javacppPlatform}"
+	}
+	mainClass = 'org.bytedeco.javacpp.tools.Builder'
+			
+	// port 5005; can debug using eclipse Remote Java Application
+	debug = false
+	
+	doFirst {
+		// Executable jars can have only _one_ jar on the classpath.
+		classpath = files(configurations.runtimeClasspath.asPath)
+		workingDir = sourceSets.main.java.outputDir
+	
+		def input = sourceSets.main.java.classesDirectory.get()
+		fileTree(input).each {
+			args it.toString()
+				   .replace(input.toString(), "")
+				   .replace("\\", "/")
+				   .replace(".class", "")
+				   .substring(1)
+		}
+	
+		// arguments to pass to the application
+		args "-properties", "${props}"
+		args "-d", "${outputDir}"
+	}
+}
+
+compileJavacppJava.dependsOn javacppGenerate
+
+task javacppJniGenerate(type: JavaExec, dependsOn: compileJavacppJava) {
+	ext {
+		outputDir = "${buildDir}/javacpp/resources/${javacppPlatform}"
+		props = "${javacppPlatform}"
+	}
+	
+	mainClass = 'org.bytedeco.javacpp.tools.Builder'
+	
+	// port 5005; can debug using eclipse Remote Java Application
+	debug = false
+	
+	doFirst {
+		// Executable jars can have only _one_ jar on the classpath.
+		classpath = files(sourceSets.javacpp.compileClasspath)
+		workingDir = sourceSets.javacpp.java.outputDir
+	
+		def input = sourceSets.javacpp.java.classesDirectory.get()
+		fileTree(input).each {
+			args it.toString()
+				   .replace(input.toString(), "")
+				   .replace("\\", "/")
+				   .replace(".class", "")
+				   .substring(1)
+		}
+		
+		args "-properties", "${props}"
+		args "-d", "${outputDir}"
+	}
+}
+
+jar.dependsOn javacppJniGenerate
+
+jar {
+	from sourceSets.javacpp.java
+	from sourceSets.javacpp.resources
+}
+
+tasks['cleanEclipse'].dependsOn clean
+tasks['eclipseClasspath'].dependsOn javacppGenerate

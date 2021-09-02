@@ -13,7 +13,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
         inherit = cudart.class, 
         names = {"windows-x86_64"}, 
         target = "org.bytedeco.cuda.cub", 
-        global = "org.bytedeco.cuda.cub.global",
+        global = "org.bytedeco.cuda.global.cub",
         value = {
             @Platform(
                 include = {
