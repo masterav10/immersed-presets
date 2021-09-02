@@ -2,6 +2,10 @@ plugins {
 	id 'javacpp-plugin'
 }
 
+ext {
+	globalProps = "${javacppPlatform}-cuda"
+}
+
 version "$cudaPresetsVersion-$javacppVersion"
 
 dependencies {
@@ -10,9 +14,13 @@ dependencies {
 
 javacppGenerate {
 	props = "${javacppPlatform}-cuda"
+	debug = false
 }
 
 javacppJniGenerate {
+	props = "${javacppPlatform}-cuda"
+	debug = false
+
 	doFirst {
 		args "-nodelete"
 		args "-Xcompiler", "--gpu-architecture=sm_61"

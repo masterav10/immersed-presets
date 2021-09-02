@@ -3,7 +3,7 @@ plugins {
 }
 
 ext {
-	javacppPlatform = 'windows-x86_64'
+	javacppPlatform = "windows-x86_64"
 }
 
 repositories {
@@ -107,4 +107,4 @@ jar {
 }
 
 tasks['cleanEclipse'].dependsOn clean
-tasks['eclipseClasspath'].dependsOn javacppGenerate
+tasks['eclipseClasspath'].dependsOn javacppJniGenerate
