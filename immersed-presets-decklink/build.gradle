@@ -1,0 +1,18 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+version "12.1-$javacppVersion"
+
+javacppGenerate {
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+
+	doFirst {
+		args "-nodelete"
+		args "-Xcompiler", "--gpu-architecture=sm_61"
+	}
+}

@@ -2,10 +2,6 @@ plugins {
 	id 'javacpp-plugin'
 }
 
-ext {
-	globalProps = "${javacppPlatform}-cuda"
-}
-
 version "$cudaPresetsVersion-$javacppVersion"
 
 dependencies {
