@@ -37,6 +37,5 @@ javacppJniGenerate {
 
 	doFirst {
 		args "-nodelete"
-		args "-Xcompiler", "--gpu-architecture=sm_61"
 	}
 }

@@ -71,29 +71,27 @@ public class decklink implements BuildEnabled, InfoMapper
 
     private static final void combaseapi(InfoMap infoMap)
     {
-        // ideally, we would parse these enumerations
-        infoMap.put(new Info("APTTYPE", "APTTYPEQUALIFIER")
-                .valueTypes("int"));
-        
         // skip these until we figure out how to deal with COM
         infoMap.put(new Info("IUnknown", "LPSTREAM", "LPMALLOC", "LPUNKNOWN", "LPSURROGATE", 
-                             "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE")
+                             "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE",
+                             "DllGetClassObject", "DllCanUnloadNow")
                 .skip());
         
-        infoMap.put(new Info("REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", "PURE", "THIS",
-                             "CLSCTX_INPROC", "CLSCTX_ALL", "CLSCTX_SERVER", "_Outptr_opt_result_buffer_",
+        infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", 
+                             "PURE", "THIS", "CLSCTX_INPROC", "CLSCTX_ALL", "CLSCTX_SERVER", "_Outptr_opt_result_buffer_",
                              "_Outptr_result_buffer_", "_Pre_maybenull_", "__drv_allocatesMem")
                 .annotations().cppTypes());
         
         infoMap.put(new Info("CLSID")
                 .valueTypes("GUID"));
         infoMap.put(new Info("LPCLSID")
-                .pointerTypes("GUID"));
-        infoMap.put(new Info("ULONG")
+                .cast().pointerTypes("GUID"));
+        
+        infoMap.put(new Info("ULONG", "APTTYPE", "APTTYPEQUALIFIER")
                 .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
         
         infoMap.put(new Info("LPCOLESTR", "LPOLESTR")
-                .pointerTypes("CharPointer", "CharBuffer", "char[]"));
+                .cast().pointerTypes("CharPointer", "CharBuffer", "char[]"));
         infoMap.put(new Info("OLECHAR")
                 .cast().valueTypes("char").pointerTypes("CharPointer", "CharBuffer", "char[]"));
     }
