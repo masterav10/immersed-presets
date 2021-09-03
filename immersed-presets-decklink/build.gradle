@@ -2,7 +2,31 @@ plugins {
 	id 'javacpp-plugin'
 }
 
-version "12.1-$javacppVersion"
+ext {
+	decklinkSdkVersion='12.1'
+}
+
+version "$decklinkSdkVersion-$javacppVersion"
+
+dependencies {
+	api "org.bytedeco:systems-platform:$javacppVersion"
+}
+
+task compileIdl(type: Exec) {
+	workingDir = "C:/Tools/Blackmagic DeckLink SDK ${decklinkSdkVersion}/Win/include"
+
+	doFirst {
+		commandLine "midl.exe"
+		args "-env", "x64"
+		args "-h", "DeckLinkAPI_h.h"
+		args "-W1" 
+		args "-char", "signed"
+		args "-target", "NT60" 
+		args "-nologo", "DeckLinkAPI.idl"
+	}
+}
+
+javacppGenerate.dependsOn compileIdl
 
 javacppGenerate {
 	debug = false
