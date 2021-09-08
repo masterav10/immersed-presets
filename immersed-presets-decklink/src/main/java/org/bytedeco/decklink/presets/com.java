@@ -81,9 +81,4 @@ public class com implements InfoMapper
         infoMap.put(new Info("BEGIN_INTERFACE").cppText("#define BEGIN_INTERFACE"));
         infoMap.put(new Info("END_INTERFACE").cppText("#define END_INTERFACE"));
     }
-
-    private static final void combaseapi(InfoMap infoMap)
-    {
-
-    }
 }
