@@ -41,6 +41,7 @@ task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 	ext {
 		outputDir = "${buildDir}/javacpp/java"
 		props = "${javacppPlatform}"
+		presetClass = ""
 	}
 	mainClass = 'org.bytedeco.javacpp.tools.Builder'
 			
@@ -52,15 +53,21 @@ task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 		classpath = files(configurations.runtimeClasspath.asPath)
 		workingDir = sourceSets.main.java.outputDir
 	
-		def input = sourceSets.main.java.classesDirectory.get()
-		fileTree(input).each {
-			args it.toString()
-				   .replace(input.toString(), "")
-				   .replace("\\", "/")
-				   .replace(".class", "")
-				   .substring(1)
+		if("".equals(presetClass))
+		{
+			def input = sourceSets.main.java.classesDirectory.get()
+			fileTree(input).each {
+				args it.toString()
+					   .replace(input.toString(), "")
+					   .replace("\\", "/")
+					   .replace(".class", "")
+					   .substring(1)
+			}
 		}
-	
+		else 
+		{
+			args presetClass
+		}
 		// arguments to pass to the application
 		args "-properties", "${props}"
 		args "-d", "${outputDir}"

@@ -3,16 +3,16 @@ package org.bytedeco.decklink.presets;
 import org.bytedeco.javacpp.annotation.NoException;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
-import org.bytedeco.javacpp.tools.BuildEnabled;
 import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
-import org.bytedeco.javacpp.tools.Logger;
-import org.bytedeco.systems.presets.windows;
 
 //@formatter:off
 @Properties(
-        inherit = com.class, 
+        inherit = {
+            com.class,
+            windef.class
+        },
         names = {"windows-x86_64"}, 
         target = "org.bytedeco.decklink", 
         global = "org.bytedeco.global.decklink",
