@@ -33,20 +33,6 @@ import org.bytedeco.systems.presets.windows;
                   "user32",
                   "uuid",
                   "winspool",
-              },
-              preloadpath = {
-                  "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/lib/",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/lib/x64/",
-                  "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64/",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/lib/x64/",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/atlmfc/lib/x64/",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/lib/x64/",
-                  "C:/Program Files (x86)/Windows Kits/10/lib/10.0.10240.0/ucrt/x64/",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/UnitTest/lib/",
-                  "C:/Program Files (x86)/Windows Kits/8.1/lib/winv6.3/um/x64/",
-                  "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.8/Lib/um/x64/",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/atlmfc/lib/x64",
-                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/lib/x64/",
               }
           )
       }
@@ -63,7 +49,10 @@ public class com implements InfoMapper
         // skip these until we figure out how to deal with COM
         infoMap.put(new Info("LPSTREAM", "LPMALLOC", "LPSURROGATE", "LPMARSHAL", "IAgileReference",
                              "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE",
-                             "PRPC_MESSAGE", "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO")
+                             "PRPC_MESSAGE", "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO", 
+                             "IClassFactory_CreateInstance_Proxy", "IClassFactory_LockServer_Stub", 
+                             "IClassFactory_RemoteLockServer_Proxy", "IClassFactory_RemoteCreateInstance_Proxy",
+                             "IClassFactory_LockServer_Proxy", "IClassFactory_CreateInstance_Stub")
                 .skip());
         
         infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", "THIS_",
