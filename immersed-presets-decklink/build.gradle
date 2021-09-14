@@ -36,6 +36,7 @@ javacppJniGenerate {
 	debug = false
 
 	doFirst {
+		args "-Xcompiler", "-DCINTERFACE"
 		args "-nodelete"
 	}
 }

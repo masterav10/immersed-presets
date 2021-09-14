@@ -41,7 +41,7 @@ task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 	ext {
 		outputDir = "${buildDir}/javacpp/java"
 		props = "${javacppPlatform}"
-		presetClass = ""
+		presetClass = "org.bytedeco.**"
 	}
 	mainClass = 'org.bytedeco.javacpp.tools.Builder'
 			
@@ -80,6 +80,7 @@ task javacppJniGenerate(type: JavaExec, dependsOn: compileJavacppJava) {
 	ext {
 		outputDir = "${buildDir}/javacpp/resources/${javacppPlatform}"
 		props = "${javacppPlatform}"
+		presetClass = "org.bytedeco.**"
 	}
 	
 	mainClass = 'org.bytedeco.javacpp.tools.Builder'
@@ -92,15 +93,16 @@ task javacppJniGenerate(type: JavaExec, dependsOn: compileJavacppJava) {
 		classpath = files(sourceSets.javacpp.compileClasspath)
 		workingDir = sourceSets.javacpp.java.outputDir
 	
-		def input = sourceSets.javacpp.java.classesDirectory.get()
+		/*def input = sourceSets.javacpp.java.classesDirectory.get()
 		fileTree(input).each {
 			args it.toString()
 				   .replace(input.toString(), "")
 				   .replace("\\", "/")
 				   .replace(".class", "")
 				   .substring(1)
-		}
+		}*/
 		
+		args presetClass
 		args "-properties", "${props}"
 		args "-d", "${outputDir}"
 	}

@@ -21,11 +21,32 @@ import org.bytedeco.systems.presets.windows;
                   "Unknwnbase.h",
                   "windef.h"
               },
+              
               link = {
+                  "advapi32",
+                  "comdlg32",
                   "comsuppw", 
-                  "ole32", 
-                  "oleaut32", 
-                  "uuid"
+                  "kernel32",
+                  "ole32",
+                  "oleaut32",
+                  "shell32",
+                  "user32",
+                  "uuid",
+                  "winspool",
+              },
+              preloadpath = {
+                  "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/lib/",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/lib/x64/",
+                  "C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um/x64/",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/lib/x64/",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/atlmfc/lib/x64/",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/lib/x64/",
+                  "C:/Program Files (x86)/Windows Kits/10/lib/10.0.10240.0/ucrt/x64/",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/VS/UnitTest/lib/",
+                  "C:/Program Files (x86)/Windows Kits/8.1/lib/winv6.3/um/x64/",
+                  "C:/Program Files (x86)/Windows Kits/NETFXSDK/4.8/Lib/um/x64/",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/atlmfc/lib/x64",
+                  "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/lib/x64/",
               }
           )
       }
@@ -40,15 +61,15 @@ public class com implements InfoMapper
                 .linePatterns(".*__MIDL_itf.*").skip());
         
         // skip these until we figure out how to deal with COM
-        infoMap.put(new Info("LPSTREAM", "LPMALLOC", "LPSURROGATE", 
+        infoMap.put(new Info("LPSTREAM", "LPMALLOC", "LPSURROGATE", "LPMARSHAL", "IAgileReference",
                              "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE",
-                             "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO")
+                             "PRPC_MESSAGE", "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO")
                 .skip());
         
-        infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", 
+        infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", "THIS_",
                              "PURE", "THIS", "CLSCTX_INPROC", "CLSCTX_ALL", "CLSCTX_SERVER", "_Outptr_opt_result_buffer_",
                              "_Outptr_result_buffer_", "_Pre_maybenull_", "__drv_allocatesMem", "__RPC__in", "_COM_Outptr_",
-                             "__RPC__deref_out_opt", "HFILE_ERROR")
+                             "__RPC__deref_out", "__RPC__deref_out_opt", "HFILE_ERROR")
                 .annotations().cppTypes());
         
         infoMap.put(new Info("CLSID")
@@ -57,7 +78,7 @@ public class com implements InfoMapper
                 .cast().pointerTypes("GUID"));
         
         infoMap.put(new Info("RPC_AUTH_IDENTITY_HANDLE")
-                .cppTypes().valueTypes("void").pointerTypes("Pointer"));
+                .cast().valueTypes("Pointer").pointerTypes("PointerPointer"));
         
         infoMap.put(new Info("ULONG", "APTTYPE", "APTTYPEQUALIFIER")
                 .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
@@ -71,12 +92,8 @@ public class com implements InfoMapper
         
         infoMap.put(new Info(
                 "(_MSC_VER >= 1100) && defined(__cplusplus) && !defined(CINTERFACE)",
-                "defined(__cplusplus) && !defined(CINTERFACE)",
-                "WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)")
+                "defined(__cplusplus) && !defined(CINTERFACE)")
                 .define(false));
-        
-        infoMap.put(new Info("EXTERN_C", "MIDL_INTERFACE", "__clrcall", "extern \"C++\"")
-                .annotations().cppTypes());
         
         infoMap.put(new Info("BEGIN_INTERFACE").cppText("#define BEGIN_INTERFACE"));
         infoMap.put(new Info("END_INTERFACE").cppText("#define END_INTERFACE"));
