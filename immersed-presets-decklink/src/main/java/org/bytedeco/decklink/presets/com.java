@@ -18,8 +18,7 @@ import org.bytedeco.systems.presets.windows;
           @Platform(
               include = {
                   "combaseapi.h",
-                  "Unknwnbase.h",
-                  "windef.h"
+                  "Unknwnbase.h"
               },
               
               link = {
