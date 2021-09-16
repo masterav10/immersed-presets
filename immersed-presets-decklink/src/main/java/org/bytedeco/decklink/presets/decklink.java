@@ -39,11 +39,11 @@ public class decklink implements InfoMapper
     public void map(InfoMap infoMap)
     {   
         infoMap.clear();
-     
+        
         infoMap.put(new Info("REFIID")
                 .cppTypes("const GUID &"));
         
-        infoMap.put(new Info("IID")
+        infoMap.put(new Info("IID", "CLSID")
                 .cppTypes("GUID"));
         
         infoMap.put(new Info("__IID_DEFINED__")
