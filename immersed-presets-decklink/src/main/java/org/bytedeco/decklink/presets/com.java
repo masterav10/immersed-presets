@@ -17,8 +17,8 @@ import org.bytedeco.systems.presets.windows;
       value = {
           @Platform(
               include = {
-                  "combaseapi.h",
-                  "Unknwnbase.h"
+                  "Unknwnbase.h",
+                  "combaseapi.h"
               },
               
               link = {

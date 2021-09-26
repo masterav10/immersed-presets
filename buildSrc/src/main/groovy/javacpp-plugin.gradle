@@ -33,10 +33,6 @@ configurations {
     javacppRuntimeOnly.extendsFrom runtimeOnly
 }
 
-dependencies {
-	api "org.bytedeco:javacpp:$javacppVersion"
-}
-
 task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 	ext {
 		outputDir = "${buildDir}/javacpp/java"
