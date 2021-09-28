@@ -21,6 +21,7 @@ task compileIdl(type: Exec) {
 		args "-h", "DeckLinkAPI_h.h"
 		args "-W1" 
 		args "-char", "signed"
+	    args "-tlb", "DeviceList.tlb"
 		args "-target", "NT60" 
 		args "-nologo", "DeckLinkAPI.idl"
 	}
@@ -36,7 +37,6 @@ javacppJniGenerate {
 	debug = false
 
 	doFirst {
-		args "-Xcompiler", "-DCINTERFACE"
 		args "-nodelete"
 	}
 }

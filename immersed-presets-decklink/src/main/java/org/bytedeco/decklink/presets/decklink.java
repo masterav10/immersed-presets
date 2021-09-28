@@ -24,10 +24,7 @@ import org.bytedeco.systems.presets.windows;
                     "C:/Tools/Blackmagic DeckLink SDK 12.1/Win/include"
                 },
                 include = {
-                    "DeckLinkAPI_h.h"
-                },
-                cinclude = {
-                    "DeckLinkAPI_i.c"
+                    "DeckLinkAPI_h.h", "DeckLinkAPI_i.c"
                 }
             )
         }
@@ -38,8 +35,6 @@ public class decklink implements InfoMapper
     @Override
     public void map(InfoMap infoMap)
     {   
-        infoMap.clear();
-        
         infoMap.put(new Info("REFIID")
                 .cppTypes("const GUID &"));
         
@@ -48,9 +43,6 @@ public class decklink implements InfoMapper
         
         infoMap.put(new Info("__IID_DEFINED__")
                 .define(true));
-        
-        infoMap.put(new Info("EXTERN_C", "MIDL_INTERFACE", "__clrcall", "extern \"C++\"")
-                .annotations().cppTypes());
         
         infoMap.put(new Info("BSTR")
                 .cast().valueTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer"));
