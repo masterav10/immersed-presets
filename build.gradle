@@ -8,16 +8,24 @@ for (String key : properties.stringPropertyNames()) {
 	ext.set(key, properties.getProperty(key))
 }
 
-apply plugin: 'eclipse'
-apply plugin: 'java-library'
-
 version "${javacppVersion}"
+
+allprojects {
+	group = 'org.bytedeco.presets'
+	
+	apply plugin: "eclipse"
+	apply plugin: "java-library"
+	
+	sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+}
 
 subprojects {
 	group = 'org.bytedeco.presets'
 	
 	apply plugin: "eclipse"
 	apply plugin: "java-library"
+	
+	sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
 	
 	repositories {
 	    mavenLocal()
