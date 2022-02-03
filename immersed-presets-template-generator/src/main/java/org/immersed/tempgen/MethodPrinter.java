@@ -144,7 +144,7 @@ public class MethodPrinter
 
     public static void main(String[] args) throws IOException
     {
-        Path includeDir = Paths.get("C:", "Program Files", "NVIDIA GPU Computing Toolkit", "CUDA", "v11.2", "include");
+        Path includeDir = Paths.get("C:", "Program Files", "NVIDIA GPU Computing Toolkit", "CUDA", "v11.4", "include");
         Path path = includeDir.resolve("cub")
                               .resolve("device");
 
@@ -176,8 +176,8 @@ public class MethodPrinter
                                            .replace(File.separatorChar, '/');
 
             System.out.println();
-            System.out.println("\"<" + headerDef + ">\"");
-            System.out.println();
+            //System.out.println("\"<" + headerDef + ">\"");
+            //System.out.println();
             
             String name = cuh.getFileName()
                              .toString();
