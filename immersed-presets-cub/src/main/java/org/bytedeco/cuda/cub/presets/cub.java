@@ -83,7 +83,7 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<3,3,int*,unsigned int,int,int>").javaNames("MultiHistogramRange3Channel"));
         infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<4,4,int*,unsigned int,int,int>").javaNames("MultiHistogramRange4Channel"));
     }
-    
+
     private static void device_partition(InfoMap infoMap)
     {
         // cub::DevicePartition::Flagged<InputIteratorT,FlagIterator,OutputIteratorT,NumSelectedIteratorT>
@@ -94,7 +94,7 @@ public class cub implements InfoMapper
         // infoMap.put(new Info("cub::DevicePartition::If<float*,float*,int*,SelectOp>").javaNames("If"));
         // infoMap.put(new Info("cub::DevicePartition::If<int*,int*,int*,SelectOp>").javaNames("If"));
     }
-    
+
     private static void device_radix_sort(InfoMap infoMap)
     {
         // cub::DeviceRadixSort::SortPairs<KeyT,ValueT>
@@ -113,7 +113,7 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceRadixSort::SortKeysDescending<float>").javaNames("SortKeysDescending"));
         infoMap.put(new Info("cub::DeviceRadixSort::SortKeysDescending<int>").javaNames("SortKeysDescending"));
     }
-    
+
     private static void device_reduce(InfoMap infoMap)
     {
         // cub::DeviceReduce::Reduce<InputIteratorT,OutputIteratorT,ReductionOpT,T>
@@ -141,9 +141,9 @@ public class cub implements InfoMapper
         // infoMap.put(new Info("cub::DeviceReduce::ArgMax<int*,int*>").javaNames("ArgMax"));
 
         // cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,NumRunsOutputIteratorT,ReductionOpT>
-        // infoMap.put(new Info("cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,unsigned int,ReductionOpT>").javaNames("ReduceByKey"));
+        // infoMap.put(new Info("cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,unsigned int*,ReductionOpT>").javaNames("ReduceByKey"));
     }
-    
+
     private static void device_run_length_encode(InfoMap infoMap)
     {
         // cub::DeviceRunLengthEncode::Encode<InputIteratorT,UniqueOutputIteratorT,LengthsOutputIteratorT,NumRunsOutputIteratorT>
@@ -173,7 +173,7 @@ public class cub implements InfoMapper
         // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<float*,float*,ScanOpT>").javaNames("InclusiveScan"));
         // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<int*,int*,ScanOpT>").javaNames("InclusiveScan"));
     }
-    
+
     private static void device_segmented_radix_sort(InfoMap infoMap)
     {
         // cub::DeviceSegmentedRadixSort::SortPairs<KeyT,ValueT,OffsetIteratorT>
@@ -192,7 +192,7 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeysDescending<float,unsigned int*>").javaNames("SortKeysDescending"));
         infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeysDescending<int,unsigned int*>").javaNames("SortKeysDescending"));
     }
-    
+
     private static void device_segmented_reduce(InfoMap infoMap)
     {
         // cub::DeviceSegmentedReduce::Reduce<InputIteratorT,OutputIteratorT,OffsetIteratorT,ReductionOp,T>
@@ -219,7 +219,7 @@ public class cub implements InfoMapper
         // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMax<float*,float*,unsigned int*>").javaNames("ArgMax"));
         // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMax<int*,int*,unsigned int*>").javaNames("ArgMax"));
     }
-    
+
     private static void device_select(InfoMap infoMap)
     {
         // cub::DeviceSelect::Flagged<InputIteratorT,FlagIterator,OutputIteratorT,NumSelectedIteratorT>
@@ -234,7 +234,7 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceSelect::Unique<float*,float*,int*>").javaNames("Unique"));
         infoMap.put(new Info("cub::DeviceSelect::Unique<int*,int*,int*>").javaNames("Unique"));
     }
-    
+
     private static void device_spmv(InfoMap infoMap)
     {
         // cub::DeviceSpmv::CsrMV<ValueT>
