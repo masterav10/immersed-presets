@@ -20,13 +20,6 @@ allprojects {
 }
 
 subprojects {
-	group = 'org.bytedeco.presets'
-	
-	apply plugin: "eclipse"
-	apply plugin: "java-library"
-	
-	sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
-	
 	repositories {
 	    mavenLocal()
 	    mavenCentral()
