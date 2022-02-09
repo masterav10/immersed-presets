@@ -17,6 +17,7 @@ import org.bytedeco.systems.presets.windows;
       value = {
           @Platform(
               include = {
+                  "WTypesbase.h",
                   "Unknwnbase.h",
                   "combaseapi.h",
                   "objbase.h"
@@ -34,7 +35,7 @@ public class com implements InfoMapper
     @Override
     public void map(InfoMap infoMap)
     {   
-        infoMap.put(new Info("combaseapi.h", "Unknwnbase.h")
+        infoMap.put(new Info("Unknwnbase.h", "combaseapi.h", "WTypesbase.h")
                 .linePatterns(".*__MIDL_itf.*").skip());
         
         infoMap.put(new Info("IUnknown::QueryInterface")
@@ -61,11 +62,12 @@ public class com implements InfoMapper
                              "IUnknown_QueryInterface_Proxy", "LPMALLOCSPY", "IMalloc", "LPINITIALIZESPY", 
                              "LPMESSAGEFILTER", "IChannelHook", "LPDATAADVISEHOLDER", "IStorage", "ILockBytes", 
                              "IFillLockBytes", "IBindCtx", "uCLSSPEC", "QUERYCONTEXT", "LPMONIKER", "BIND_OPTS", "LPBC", 
-                             "IBindStatusCallback", "LPRUNNINGOBJECTTABLE")
+                             "IBindStatusCallback", "LPRUNNINGOBJECTTABLE", "FILETIME", "RPC_IF_HANDLE", "HYPER_SIZEDARR",
+                             "BYTE_BLOB", "BYTE_SIZEDARR", "FLAGGED_BYTE_BLOB", "SID_AND_ATTRIBUTES")
                 .skip());
         
         infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", "THIS_",
-                             "PURE", "THIS", "CLSCTX_INPROC", "CLSCTX_ALL", "CLSCTX_SERVER", "_Outptr_opt_result_buffer_",
+                             "PURE", "THIS", "_Outptr_opt_result_buffer_",
                              "_Outptr_result_buffer_", "_Pre_maybenull_", "__drv_allocatesMem", "__RPC__in", 
                              "_COM_Outptr_", "__RPC__deref_out", "__RPC__deref_out_opt", "HFILE_ERROR", "__RPC_FAR",
                              "In_opt_z_", "_fastcall", "wIsEqualGUID")

@@ -1,6 +1,5 @@
 package org.bytedeco.decklink.windows;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.decklink.*;
 
@@ -8,7 +7,6 @@ import org.bytedeco.decklink.IDeckLinkAPIInformation;
 import org.bytedeco.decklink.IDeckLinkIterator;
 import org.bytedeco.javacpp.LongPointer;
 import org.bytedeco.javacpp.PointerPointer;
-import org.junit.jupiter.api.Test;
 
 class DeviceList
 {
@@ -22,7 +20,6 @@ class DeviceList
 
     public static int GetDeckLinkIterator(PointerPointer<IDeckLinkIterator> deckLinkIterator)
     {
-        final int CLSCTX_ALL = (1 | 2 | 4 | 16);
         return CoCreateInstance(CLSID_CDeckLinkIterator(), null, CLSCTX_ALL, IID_IDeckLinkIterator(), deckLinkIterator);
     }
 
