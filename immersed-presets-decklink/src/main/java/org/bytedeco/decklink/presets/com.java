@@ -84,8 +84,9 @@ public class com implements InfoMapper
         infoMap.put(new Info("ULONG", "APTTYPE", "APTTYPEQUALIFIER")
                 .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
         
-        infoMap.put(new Info("LPCOLESTR", "LPOLESTR")
-                .cast().pointerTypes("CharPointer", "CharBuffer", "char[]"));
+        infoMap.put(new Info("LPCOLESTR", "LPOLESTR", "BSTR")
+                .cast().pointerTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer<CharPointer>"));
+        
         infoMap.put(new Info("OLECHAR")
                 .cast().valueTypes("char").pointerTypes("CharPointer", "CharBuffer", "char[]"));
         
