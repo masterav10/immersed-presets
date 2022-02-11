@@ -3,6 +3,7 @@ package org.bytedeco.decklink.presets;
 import org.bytedeco.javacpp.annotation.NoException;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
+import org.bytedeco.javacpp.annotation.Virtual;
 import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
@@ -38,8 +39,10 @@ public class com implements InfoMapper
         infoMap.put(new Info("Unknwnbase.h", "combaseapi.h", "WTypesbase.h")
                 .linePatterns(".*__MIDL_itf.*").skip());
         
+        infoMap.put(new Info("IUnknown").purify(false).virtualize());
+        
         infoMap.put(new Info("IUnknown::QueryInterface")
-                .javaText("public native @Cast(\"HRESULT\") int QueryInterface( @Cast(\"const IID*\") @ByRef GUID riid, PointerPointer arg1/**ppvObject*/);"));
+                .javaText("@Virtual(true) public native @Cast(\"HRESULT\") int QueryInterface( @Cast(\"const IID*\") @ByRef GUID riid, PointerPointer arg1/**ppvObject*/);"));
         
         infoMap.put(new Info("MIDL_INTERFACE")
                 .cppText("#define MIDL_INTERFACE(x) struct"));

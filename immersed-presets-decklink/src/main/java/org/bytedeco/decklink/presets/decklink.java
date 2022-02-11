@@ -46,5 +46,7 @@ public class decklink implements InfoMapper
         
         infoMap.put(new Info("BSTR")
                 .cast().valueTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer"));
+        
+        infoMap.put(new Info("IDeckLinkInputCallback").purify(false).virtualize());
     }
 }
