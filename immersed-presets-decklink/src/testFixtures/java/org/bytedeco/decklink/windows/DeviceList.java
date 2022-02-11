@@ -1,18 +1,17 @@
 package org.bytedeco.decklink.windows;
 
+import static org.bytedeco.decklink.windows.Utility.*;
 import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.decklink.*;
 
-import org.bytedeco.com.IUnknown;
 import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkAPIInformation;
 import org.bytedeco.decklink.IDeckLinkIterator;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
+import org.bytedeco.global.decklink;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.LongPointer;
-import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
-import org.bytedeco.systems.windows.GUID;
 
 /**
  * Recreation of the DeviceList project.
@@ -23,8 +22,6 @@ import org.bytedeco.systems.windows.GUID;
  */
 public final class DeviceList
 {
-    private static int error = -1;
-    
     private static final void check(int error)
     {
         if (error < 0)
@@ -174,17 +171,58 @@ public final class DeviceList
             System.out.printf(" %-40s %s\n", "Device Interface", "Thunderbolt");
             break;
         }
-        
-        value = GetInt(BMDDeckLinkPersistentID, deckLinkAttributes);
-        
-        if(error == 0)
+
+        printInt("Device Persistent ID:", BMDDeckLinkPersistentID, deckLinkAttributes);
+        printInt("Device Topological ID:", BMDDeckLinkTopologicalID, deckLinkAttributes);
+
+        if (printInt("Number of sub-devices:", BMDDeckLinkNumberOfSubDevices, deckLinkAttributes) > 0)
         {
-            System.out.printf(" %-40s %llx\n", "Device Persistent ID:",  value);
+            printInt("Sub-device index:", BMDDeckLinkSubDeviceIndex, deckLinkAttributes);
         }
-        else
+
+        if (printFlag("Serial port present:", BMDDeckLinkHasSerialPort, deckLinkAttributes))
         {
-            System.out.printf(" %-40s %s\n", "Device Persistent ID:",  "Not Supported on this device");
+            printString("Serial port name:", BMDDeckLinkSerialPortDeviceName, deckLinkAttributes);
         }
+
+        printInt("Number of audio channels:", BMDDeckLinkMaximumAudioChannels, deckLinkAttributes);
+        printFlag("Input mode detection supported ?", BMDDeckLinkSupportsInputFormatDetection, deckLinkAttributes);
+        printInt("Duplex Mode:", BMDDeckLinkDuplex, deckLinkAttributes);
+        printFlag("Internal keying supported ?", BMDDeckLinkSupportsInternalKeying, deckLinkAttributes);
+        printFlag("External keying supported ?", BMDDeckLinkSupportsExternalKeying, deckLinkAttributes);
+        printFlag("HDMI timecode support:", BMDDeckLinkSupportsHDMITimecode, deckLinkAttributes);
+     
+        if(deckLinkAttributes != null && !deckLinkAttributes.isNull())
+        {
+            deckLinkAttributes.Release();
+        }
+    }
+
+    private static long printInt(String text, int key, IDeckLinkProfileAttributes deckLinkAttributes)
+    {
+        long value = GetInt(key, deckLinkAttributes);
+        boolean supported = error() == 0;
+        String result = supported ? String.format("%d", value) : "Not Supported on this device";
+        System.out.printf(" %-40s %s\n", text, result);
+        return value;
+    }
+
+    private static boolean printFlag(String text, int key, IDeckLinkProfileAttributes deckLinkAttributes)
+    {
+        boolean value = GetFlag(key, deckLinkAttributes);
+        boolean supported = error() == 0;
+        String result = supported ? (value ? "Yes" : "No") : "Not Supported on this device";
+        System.out.printf(" %-40s %s\n", text, result);
+        return value;
+    }
+
+    private static String printString(String text, int key, IDeckLinkProfileAttributes deckLinkAttributes)
+    {
+        String value = GetString(key, deckLinkAttributes);
+        boolean supported = error() == 0;
+        String result = supported ? value : "Not Supported on this device";
+        System.out.printf(" %-40s %s\n", text, result);
+        return value;
     }
 
     private static void print_input_modes(IDeckLink deckLink, int printFlags)
@@ -195,23 +233,5 @@ public final class DeviceList
     private static void print_output_modes(IDeckLink deckLink, int printFlags)
     {
         // TODO Auto-generated method stub
-    }
-
-    private static final <T extends Pointer> T QueryInterface(IUnknown unknown, GUID guid, Class<T> type)
-    {
-        try (PointerPointer<T> pointer = new PointerPointer<>(1L))
-        {
-            error = unknown.QueryInterface(guid, pointer);
-            return pointer.get(type);
-        }
-    }
-
-    private static final long GetInt(int key, IDeckLinkProfileAttributes attributes)
-    {
-        try (LongPointer pointer = new LongPointer(1L))
-        {
-            error = attributes.GetInt(key, pointer);
-            return pointer.get();
-        }
     }
 }
