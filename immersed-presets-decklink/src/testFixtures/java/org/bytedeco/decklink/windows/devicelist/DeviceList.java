@@ -1,4 +1,4 @@
-package org.bytedeco.decklink.windows;
+package org.bytedeco.decklink.windows.devicelist;
 
 import static org.bytedeco.decklink.windows.Utility.*;
 import static org.bytedeco.global.com.*;
