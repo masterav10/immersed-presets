@@ -17,7 +17,8 @@ import org.bytedeco.systems.presets.windows;
     value = {
         @Platform(
             include = {
-                "windef.h"
+                "windef.h",
+                "winerror.h"
             }
         )
     }
