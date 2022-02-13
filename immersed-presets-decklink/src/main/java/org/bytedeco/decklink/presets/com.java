@@ -42,7 +42,7 @@ public class com implements InfoMapper
         infoMap.put(new Info("IUnknown").purify(false).virtualize());
         
         infoMap.put(new Info("IUnknown::QueryInterface")
-                .javaText("@Virtual(true) public native @Cast(\"HRESULT\") int QueryInterface( @Cast(\"const IID*\") @ByRef GUID riid, PointerPointer arg1/**ppvObject*/);"));
+                .javaText("@Virtual(true) public native @Cast(\"HRESULT\") int QueryInterface( @Cast(\"const IID*\") @ByRef GUID riid, PointerPointer ppv/**ppvObject*/);"));
         
         infoMap.put(new Info("MIDL_INTERFACE")
                 .cppText("#define MIDL_INTERFACE(x) struct"));
