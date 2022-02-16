@@ -8,6 +8,7 @@ import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkAPIInformation;
 import org.bytedeco.decklink.IDeckLinkIterator;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
+import org.bytedeco.decklink.windows.ComSupport;
 import org.bytedeco.global.decklink;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.LongPointer;
@@ -22,19 +23,6 @@ import org.bytedeco.javacpp.PointerPointer;
  */
 public final class DeviceList
 {
-    private static final void check(int error)
-    {
-        if (error < 0)
-        {
-            throw new IllegalStateException(String.format("%s", Integer.toHexString(error)));
-        }
-    }
-
-    public static int GetDeckLinkIterator(PointerPointer<IDeckLinkIterator> deckLinkIterator)
-    {
-        return CoCreateInstance(CLSID_CDeckLinkIterator(), null, CLSCTX_ALL, IID_IDeckLinkIterator(), deckLinkIterator);
-    }
-
     public static void main(String... args)
     {
         int printFlags = 0;
@@ -44,9 +32,7 @@ public final class DeviceList
 
         // Create an IDeckLinkIterator object to enumerate all DeckLink cards in the
         // system
-        PointerPointer<IDeckLinkIterator> deckLinkIteratorPtr = new PointerPointer<>(1L);
-        check(GetDeckLinkIterator(deckLinkIteratorPtr));
-        IDeckLinkIterator deckLinkIterator = deckLinkIteratorPtr.get(IDeckLinkIterator.class);
+        IDeckLinkIterator deckLinkIterator = ComSupport.create(IDeckLinkIterator.class);
 
         PointerPointer<IDeckLinkAPIInformation> deckLinkAPIInformationPtr = new PointerPointer<>(1L);
         check(deckLinkIterator.QueryInterface(IID_IDeckLinkAPIInformation(), deckLinkAPIInformationPtr));
@@ -191,8 +177,8 @@ public final class DeviceList
         printFlag("Internal keying supported ?", BMDDeckLinkSupportsInternalKeying, deckLinkAttributes);
         printFlag("External keying supported ?", BMDDeckLinkSupportsExternalKeying, deckLinkAttributes);
         printFlag("HDMI timecode support:", BMDDeckLinkSupportsHDMITimecode, deckLinkAttributes);
-     
-        if(deckLinkAttributes != null && !deckLinkAttributes.isNull())
+
+        if (deckLinkAttributes != null && !deckLinkAttributes.isNull())
         {
             deckLinkAttributes.Release();
         }

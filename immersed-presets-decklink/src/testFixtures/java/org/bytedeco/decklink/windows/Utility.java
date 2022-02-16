@@ -54,4 +54,12 @@ public class Utility
             return ptr.getString();
         }
     }
+
+    public static final void check(int error)
+    {
+        if (error < 0)
+        {
+            throw new IllegalStateException(String.format("%s", Integer.toHexString(error)));
+        }
+    }
 }
