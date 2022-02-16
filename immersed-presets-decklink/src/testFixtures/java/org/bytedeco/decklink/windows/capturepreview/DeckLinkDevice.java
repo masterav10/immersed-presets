@@ -1,5 +1,6 @@
 package org.bytedeco.decklink.windows.capturepreview;
 
+import static org.bytedeco.decklink.windows.ComSupport.*;
 import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.decklink.*;
 import static org.bytedeco.global.windef.*;
@@ -9,7 +10,9 @@ import java.util.function.IntConsumer;
 
 import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkAudioInputPacket;
+import org.bytedeco.decklink.IDeckLinkConfiguration;
 import org.bytedeco.decklink.IDeckLinkDisplayMode;
+import org.bytedeco.decklink.IDeckLinkDisplayModeIterator;
 import org.bytedeco.decklink.IDeckLinkHDMIInputEDID;
 import org.bytedeco.decklink.IDeckLinkInput;
 import org.bytedeco.decklink.IDeckLinkInputCallback;
@@ -20,6 +23,14 @@ import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.systems.windows.GUID;
 
+/**
+ * A wrapper around a device available in an attached frame pool.
+ * 
+ * @author Dan Avila
+ * @see DeckLinkDevice.cpp
+ * @see DeckLinkDevice.h
+ *
+ */
 public class DeckLinkDevice extends IDeckLinkInputCallback
 {
     private static enum DeviceError
@@ -28,11 +39,13 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     };
 
     private Consumer<DeviceError> m_errorListener;
+    private Consumer<IDeckLinkVideoInputFrame> m_videoFrameArrivedCallback;
     private IntConsumer m_videoFormatChangedCallback;
 
     private int m_refCount = 1;
     private IDeckLink m_deckLink;
     private IDeckLinkInput m_deckLinkInput;
+    private IDeckLinkConfiguration m_deckLinkConfig;
     private IDeckLinkHDMIInputEDID m_deckLinkHDMIInputEDID;
 
     private boolean m_supportsFormatDetection = false;
@@ -43,11 +56,11 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     public DeckLinkDevice(IDeckLink device)
     {
         this.m_deckLink = device;
-        this.m_deckLinkInput = Utility.QueryInterface(device, IID_IDeckLinkInput(), IDeckLinkInput.class);
+        this.m_deckLinkInput = find(device, IDeckLinkInput.class);
+        this.m_deckLinkConfig = find(device, IDeckLinkConfiguration.class);
+        this.m_deckLinkHDMIInputEDID = find(device, IDeckLinkHDMIInputEDID.class);
 
-        this.m_supportsFormatDetection = false;
-
-        if (m_deckLinkInput.isNull())
+        if (m_deckLinkInput == null || m_deckLinkInput.isNull())
         {
             throw new IllegalArgumentException("DeckLink device does not have an input interface.");
         }
@@ -98,9 +111,7 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
 
     public boolean init()
     {
-
-        IDeckLinkProfileAttributes deckLinkAttributes = Utility.QueryInterface(m_deckLink,
-                IID_IDeckLinkProfileAttributes(), IDeckLinkProfileAttributes.class);
+        IDeckLinkProfileAttributes deckLinkAttributes = find(m_deckLink, IDeckLinkProfileAttributes.class);
 
         if (deckLinkAttributes == null || deckLinkAttributes.isNull())
             return false;
@@ -118,14 +129,14 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
             m_deckLinkHDMIInputEDID.WriteToEDID();
         }
 
-        // Get device name
-
         try (PointerPointer<CharPointer> pointer = new PointerPointer<CharPointer>(1L))
         {
+            // Get device name
             if (m_deckLink.GetDisplayName(pointer) == S_OK)
             {
                 CharPointer tmp = pointer.get(CharPointer.class);
                 this.m_deviceName = tmp.getString();
+                tmp.deallocate();
             }
             else
             {
@@ -134,6 +145,88 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
         }
 
         return true;
+    }
+
+    public boolean startCapture(int displayMode, boolean applyDetectedInputMode)
+    {
+        int videoInputFlags = bmdVideoInputFlagDefault;
+
+        m_applyDetectedInputMode = applyDetectedInputMode;
+
+        // Enable input video mode detection if the device supports it
+        if (m_supportsFormatDetection)
+            videoInputFlags |= bmdVideoInputEnableFormatDetection;
+
+        // Set the screen preview
+        // m_deckLinkInput.SetScreenPreviewCallback(screenPreviewCallback);
+
+        // Set capture callback
+        m_deckLinkInput.SetCallback(this);
+
+        // Set the video input mode
+        if (m_deckLinkInput.EnableVideoInput(displayMode, bmdFormat8BitYUV, videoInputFlags) != S_OK)
+        {
+            if (m_errorListener != null)
+                m_errorListener.accept(DeviceError.EnableVideoInputFailed);
+
+            return false;
+        }
+
+        // Start the capture
+        if (m_deckLinkInput.StartStreams() != S_OK)
+        {
+            if (m_errorListener != null)
+                m_errorListener.accept(DeviceError.StartStreamsFailed);
+
+            return false;
+        }
+
+        m_currentlyCapturing = true;
+
+        return true;
+    }
+
+    public void stopCapture()
+    {
+        if (m_deckLinkInput != null && !m_deckLinkInput.isNull())
+        {
+            // Stop the capture
+            m_deckLinkInput.StopStreams();
+
+            // Unregister screen preview callback
+            m_deckLinkInput.SetScreenPreviewCallback(null);
+
+            // Delete capture callback
+            m_deckLinkInput.SetCallback(null);
+
+            // Disable video input
+            m_deckLinkInput.DisableVideoInput();
+        }
+
+        m_currentlyCapturing = false;
+    }
+
+    public void queryDisplayModes(Consumer<IDeckLinkDisplayMode> func)
+    {
+        if (func == null)
+            return;
+
+        try (PointerPointer<IDeckLinkDisplayMode> displayModePtr = new PointerPointer<>(1L))
+        {
+            IDeckLinkDisplayModeIterator displayModeIterator = find(m_deckLinkInput,
+                    IDeckLinkDisplayModeIterator.class);
+
+            while (displayModeIterator.Next(displayModePtr) == S_OK)
+            {
+                IDeckLinkDisplayMode displayMode = displayModePtr.get(IDeckLinkDisplayMode.class);
+                func.accept(displayMode);
+                displayMode.Release();
+            }
+        }
+        catch (RuntimeException e)
+        {
+            return;
+        }
     }
 
     @Override
@@ -209,9 +302,63 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     @Override
     public int VideoInputFrameArrived(IDeckLinkVideoInputFrame videoFrame, IDeckLinkAudioInputPacket audioPacket)
     {
-        boolean isVideoFrameNull = videoFrame == null || videoFrame.isNull();
-        System.out.println(videoFrame.GetRowBytes());
+        boolean isFrameNull = videoFrame != null && !videoFrame.isNull();
+
+        if (!isFrameNull && (m_videoFrameArrivedCallback != null))
+        {
+            m_videoFrameArrivedCallback.accept(videoFrame);
+        }
 
         return (int) S_OK;
+    }
+
+    /**
+     * Defined in the header.
+     * 
+     * @return the name of the device.
+     */
+    public String getDeviceName()
+    {
+        return m_deviceName;
+    }
+
+    public boolean isCapturing()
+    {
+        return this.m_currentlyCapturing;
+    }
+
+    public boolean doesSupportFormatDetection()
+    {
+        return m_supportsFormatDetection;
+    }
+
+    public IDeckLink getDeckLinkInstance()
+    {
+        return m_deckLink;
+    }
+
+    public IDeckLinkInput getDeckLinkInput()
+    {
+        return m_deckLinkInput;
+    }
+
+    public IDeckLinkConfiguration getDeckLinkConfiguration()
+    {
+        return m_deckLinkConfig;
+    }
+
+    public void setErrorListener(Consumer<DeviceError> func)
+    {
+        this.m_errorListener = func;
+    }
+
+    public void onVideoFormatChange(IntConsumer callback)
+    {
+        this.m_videoFormatChangedCallback = callback;
+    }
+
+    public void onVideoFrameArrival(Consumer<IDeckLinkVideoInputFrame> callback)
+    {
+        this.m_videoFrameArrivedCallback = callback;
     }
 }
