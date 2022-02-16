@@ -1,5 +1,6 @@
 package org.bytedeco.decklink.windows.devicelist;
 
+import static org.bytedeco.decklink.windows.ComSupport.*;
 import static org.bytedeco.decklink.windows.Utility.*;
 import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.decklink.*;
@@ -8,8 +9,6 @@ import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkAPIInformation;
 import org.bytedeco.decklink.IDeckLinkIterator;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
-import org.bytedeco.decklink.windows.ComSupport;
-import org.bytedeco.global.decklink;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.LongPointer;
 import org.bytedeco.javacpp.PointerPointer;
@@ -32,16 +31,13 @@ public final class DeviceList
 
         // Create an IDeckLinkIterator object to enumerate all DeckLink cards in the
         // system
-        IDeckLinkIterator deckLinkIterator = ComSupport.create(IDeckLinkIterator.class);
-
-        PointerPointer<IDeckLinkAPIInformation> deckLinkAPIInformationPtr = new PointerPointer<>(1L);
-        check(deckLinkIterator.QueryInterface(IID_IDeckLinkAPIInformation(), deckLinkAPIInformationPtr));
+        IDeckLinkIterator deckLinkIterator = create(IDeckLinkIterator.class);
 
         // We can get the version of the API like this:
-        LongPointer deckLinkVersionPtr = new LongPointer(1L);
-        IDeckLinkAPIInformation deckLinkAPIInformation = deckLinkAPIInformationPtr.get(IDeckLinkAPIInformation.class);
+        IDeckLinkAPIInformation deckLinkAPIInformation = find(deckLinkIterator, IDeckLinkAPIInformation.class);
 
         // We can also use the BMDDeckLinkAPIVersion flag with GetString
+        LongPointer deckLinkVersionPtr = new LongPointer(1L);
         deckLinkAPIInformation.GetInt(BMDDeckLinkAPIVersion, deckLinkVersionPtr);
 
         long deckLinkVersion = deckLinkVersionPtr.get();
@@ -83,9 +79,7 @@ public final class DeviceList
             // inactive for the current profile
             boolean showIOInfo = true;
 
-            PointerPointer<IDeckLinkProfileAttributes> deckLinkAttributesPtr = new PointerPointer<>(1L);
-            check(deckLink.QueryInterface(IID_IDeckLinkProfileAttributes(), deckLinkAttributesPtr));
-            IDeckLinkProfileAttributes deckLinkAttributes = deckLinkAttributesPtr.get(IDeckLinkProfileAttributes.class);
+            IDeckLinkProfileAttributes deckLinkAttributes = find(deckLink, IDeckLinkProfileAttributes.class);
 
             LongPointer duplexModePtr = new LongPointer(1L);
             check(deckLinkAttributes.GetInt(BMDDeckLinkDuplex, duplexModePtr));
@@ -137,8 +131,7 @@ public final class DeviceList
     private static void print_attributes(IDeckLink deckLink, boolean showIOInfo)
     {
         // Query the DeckLink for its attributes interface
-        IDeckLinkProfileAttributes deckLinkAttributes = QueryInterface(deckLink, IID_IDeckLinkProfileAttributes(),
-                IDeckLinkProfileAttributes.class);
+        IDeckLinkProfileAttributes deckLinkAttributes = find(deckLink, IDeckLinkProfileAttributes.class);
 
         // List attributes and their value
         System.out.printf("Attribute list:\n");
