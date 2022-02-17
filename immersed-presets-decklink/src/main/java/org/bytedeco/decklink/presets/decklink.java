@@ -47,6 +47,13 @@ public class decklink implements InfoMapper
         infoMap.put(new Info("BSTR")
                 .cast().valueTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer"));
         
-        infoMap.put(new Info("IDeckLinkInputCallback").purify(false).virtualize());
+        // Use CallbackPrinter to update this list
+        infoMap.put(new Info("IBMDStreamingDeviceNotificationCallback","IBMDStreamingH264InputCallback","IDeckLinkAudioOutputCallback",
+                             "IDeckLinkDeckControlStatusCallback","IDeckLinkDeckControlStatusCallback_v8_1","IDeckLinkDeviceNotificationCallback",
+                             "IDeckLinkEncoderInputCallback","IDeckLinkInputCallback","IDeckLinkInputCallback_v11_5_1","IDeckLinkInputCallback_v7_1",
+                             "IDeckLinkInputCallback_v7_3","IDeckLinkInputCallback_v7_6","IDeckLinkNotificationCallback","IDeckLinkProfileCallback",
+                             "IDeckLinkScreenPreviewCallback","IDeckLinkScreenPreviewCallback_v7_6","IDeckLinkVideoOutputCallback",
+                             "IDeckLinkVideoOutputCallback_v7_1","IDeckLinkVideoOutputCallback_v7_6")
+                .purify(false).virtualize());
     }
 }
