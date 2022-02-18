@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.layout.Region;
 
@@ -29,11 +30,31 @@ public class CapturePreviewController
                      .bind(parent.widthProperty());
         previewCanvas.heightProperty()
                      .bind(parent.heightProperty());
+
+        inputDeviceDropdown.setCellFactory(view ->
+        {
+            return new ListCell<DeckLinkDevice>()
+            {
+                @Override
+                protected void updateItem(DeckLinkDevice item, boolean empty)
+                {
+                    super.updateItem(item, empty);
+                    setText(item == null || empty ? "" : item.getDeviceName());
+                }
+            };
+        });
+        inputDeviceDropdown.setButtonCell(inputDeviceDropdown.getCellFactory()
+                                                             .call(null));
     }
 
     public void onDeviceAdded(IDeckLink device)
     {
         final DeckLinkDevice deckLinkDevice = new DeckLinkDevice(device);
+
+        if (!deckLinkDevice.init())
+        {
+            return;
+        }
 
         Platform.runLater(() ->
         {
@@ -63,6 +84,12 @@ public class CapturePreviewController
                 if (device.equals(deckLinkDevice.getDeckLinkInstance()))
                 {
                     iter.remove();
+
+                    if (deckLinkDevice.isCapturing())
+                    {
+                        deckLinkDevice.stopCapture();
+                    }
+
                     deckLinkDevice.Release();
                 }
             }
