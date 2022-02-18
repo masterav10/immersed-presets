@@ -1,7 +1,6 @@
 package org.bytedeco.decklink.windows.capturepreview;
 
 import static org.bytedeco.decklink.windows.ComSupport.*;
-import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.decklink.*;
 import static org.bytedeco.global.windef.*;
 
@@ -18,6 +17,7 @@ import org.bytedeco.decklink.IDeckLinkInput;
 import org.bytedeco.decklink.IDeckLinkInputCallback;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
 import org.bytedeco.decklink.IDeckLinkVideoInputFrame;
+import org.bytedeco.decklink.windows.IUnknownSupport;
 import org.bytedeco.decklink.windows.Utility;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.PointerPointer;
@@ -53,6 +53,8 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     private boolean m_applyDetectedInputMode = false;
     private String m_deviceName = null;
 
+    private final IUnknownSupport com = IUnknownSupport.create(this);
+
     public DeckLinkDevice(IDeckLink device)
     {
         this.m_deckLink = device;
@@ -69,44 +71,19 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     @Override
     public int QueryInterface(GUID iid, PointerPointer ppv)
     {
-        int result = (int) E_NOINTERFACE;
-
-        if (ppv == null || ppv.isNull())
-        {
-            return (int) E_INVALIDARG;
-        }
-
-        if (iid.equals(IID_IUnknown()))
-        {
-            ppv.put(this);
-            AddRef();
-            result = (int) S_OK;
-        }
-        else if (iid.equals(IID_IDeckLinkInputCallback()))
-        {
-            ppv.put(this);
-            AddRef();
-            result = (int) S_OK;
-        }
-
-        return result;
+        return com.QueryInterface(iid, ppv);
     }
 
     @Override
     public int AddRef()
     {
-        return ++m_refCount;
+        return com.AddRef();
     }
 
     @Override
     public int Release()
     {
-        int newRefValue = --m_refCount;
-        if (newRefValue == 0)
-        {
-            deallocate();
-        }
-        return newRefValue;
+        return com.Release();
     }
 
     public boolean init()

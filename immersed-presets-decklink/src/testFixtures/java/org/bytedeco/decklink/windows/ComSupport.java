@@ -2,6 +2,7 @@ package org.bytedeco.decklink.windows;
 
 import static org.bytedeco.decklink.windows.Utility.*;
 import static org.bytedeco.global.com.*;
+import static org.bytedeco.global.windef.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +70,8 @@ public class ComSupport
      * @param <T>  the type of object we are querying.
      * @param base the object holding the subtype
      * @param type the class for the subtype
-     * @return an instantiated instance of the subtype.
+     * @return the object we are querying for, or null if that object could not be
+     *         found.
      */
     public static <T extends Pointer> T find(IUnknown base, Class<T> type)
     {
@@ -77,8 +79,12 @@ public class ComSupport
 
         try (PointerPointer<T> pointer = new PointerPointer<>(1L))
         {
-            check(base.QueryInterface(iid, pointer));
-            return pointer.get(type);
+            if (base.QueryInterface(iid, pointer) == S_OK)
+            {
+                return pointer.get(type);
+            }
+
+            return null;
         }
     }
 
