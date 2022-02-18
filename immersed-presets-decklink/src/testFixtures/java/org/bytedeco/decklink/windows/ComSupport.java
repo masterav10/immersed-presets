@@ -103,4 +103,9 @@ public class ComSupport
             return ref.get(type);
         }
     }
+
+    static GUID lookupIID(Class<?> type)
+    {
+        return IIDS.get(type);
+    }
 }
