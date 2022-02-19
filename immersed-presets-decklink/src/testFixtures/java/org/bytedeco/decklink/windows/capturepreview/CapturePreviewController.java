@@ -22,6 +22,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -93,6 +94,9 @@ public class CapturePreviewController
     private ComboBox<DisplayMode> videoFormatDropdown;
 
     @FXML
+    private CheckBox autoFormat;
+
+    @FXML
     public void initialize()
     {
         Region parent = (Region) previewCanvas.getParent();
@@ -127,6 +131,9 @@ public class CapturePreviewController
                 }
             };
         });
+
+        autoFormat.selectedProperty()
+                  .addListener((obs, ov, isSelect) -> this.videoFormatDropdown.setDisable(isSelect));
     }
 
     private void onInputConnectionSelected(Integer connectionId)
