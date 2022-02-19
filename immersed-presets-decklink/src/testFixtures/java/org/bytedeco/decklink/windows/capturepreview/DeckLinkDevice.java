@@ -188,9 +188,13 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
         if (func == null)
             return;
 
-        try (PointerPointer<IDeckLinkDisplayMode> displayModePtr = new PointerPointer<>(1L))
+        try (PointerPointer<IDeckLinkDisplayModeIterator> displayModeIteratorPtr = new PointerPointer<>(1L);
+                PointerPointer<IDeckLinkDisplayMode> displayModePtr = new PointerPointer<>(1L))
         {
-            IDeckLinkDisplayModeIterator displayModeIterator = find(m_deckLinkInput,
+            if (m_deckLinkInput.GetDisplayModeIterator(displayModeIteratorPtr) != S_OK)
+                return;
+
+            IDeckLinkDisplayModeIterator displayModeIterator = displayModeIteratorPtr.get(
                     IDeckLinkDisplayModeIterator.class);
 
             while (displayModeIterator.Next(displayModePtr) == S_OK)
@@ -199,10 +203,6 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
                 func.accept(displayMode);
                 displayMode.Release();
             }
-        }
-        catch (RuntimeException e)
-        {
-            return;
         }
     }
 
