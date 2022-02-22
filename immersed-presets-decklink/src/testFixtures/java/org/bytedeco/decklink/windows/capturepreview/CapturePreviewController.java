@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkConfiguration;
@@ -27,6 +27,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionModel;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
 
@@ -70,7 +71,7 @@ public class CapturePreviewController
         kInputConnections.put(bmdVideoConnectionSVideo, "S-Video");
     }
 
-    private static <T> void configure(ComboBox<T> combo, Consumer<T> onUpdate,
+    private static <T> void configure(ComboBox<T> combo, BiConsumer<T, T> onUpdate,
             Callback<ListView<T>, ListCell<T>> factory)
     {
         combo.setCellFactory(factory);
@@ -78,7 +79,7 @@ public class CapturePreviewController
                                  .call(null));
         combo.getSelectionModel()
              .selectedItemProperty()
-             .addListener((obs, ov, nv) -> onUpdate.accept(nv));
+             .addListener((obs, ov, nv) -> onUpdate.accept(ov, nv));
     }
 
     @FXML
@@ -95,6 +96,9 @@ public class CapturePreviewController
 
     @FXML
     private CheckBox autoFormat;
+
+    @FXML
+    private ToggleButton captureToggle;
 
     @FXML
     public void initialize()
@@ -134,17 +138,63 @@ public class CapturePreviewController
 
         autoFormat.selectedProperty()
                   .addListener((obs, ov, isSelect) -> this.videoFormatDropdown.setDisable(isSelect));
+
+        captureToggle.setOnAction(ev ->
+        {
+            if (captureToggle.isSelected())
+            {
+                startCapture();
+            }
+            else
+            {
+                stopCapture();
+            }
+        });
     }
 
-    private void onInputConnectionSelected(Integer connectionId)
+    private void startCapture()
+    {
+        boolean applyDetectedInputMode = this.autoFormat.isSelected();
+        int selectedVideoFormatIndex = this.videoFormatDropdown.getSelectionModel()
+                                                               .getSelectedIndex();
+
+        if (selectedVideoFormatIndex < 0)
+            return;
+
+        DeckLinkDevice device = this.inputDeviceDropdown.getValue();
+
+        if (device != null)
+        {
+            DisplayMode mode = this.videoFormatDropdown.getValue();
+            if (device.startCapture(mode.constant, applyDetectedInputMode))
+            {
+                this.captureToggle.setText("Stop capture");
+            }
+            else
+            {
+                device.stopCapture();
+            }
+        }
+    }
+
+    private void stopCapture()
+    {
+        DeckLinkDevice device = this.inputDeviceDropdown.getValue();
+
+        if (device != null)
+            device.stopCapture();
+
+        this.captureToggle.setText("Start capture");
+    }
+
+    private void onInputConnectionSelected(Integer old, Integer connectionId)
     {
         SelectionModel<Integer> model = inputConnectionDropdown.getSelectionModel();
 
         if (model.getSelectedIndex() < 0)
             return;
 
-        DeckLinkDevice device = inputDeviceDropdown.getSelectionModel()
-                                                   .getSelectedItem();
+        DeckLinkDevice device = inputDeviceDropdown.getValue();
         IDeckLinkConfiguration config = device.getDeckLinkConfiguration();
 
         int inputConnection = model.getSelectedItem();
@@ -176,8 +226,19 @@ public class CapturePreviewController
         }
     }
 
-    private void onDeviceSelected(DeckLinkDevice device)
+    private void onDeviceSelected(DeckLinkDevice old, DeckLinkDevice device)
     {
+        if (old != null)
+        {
+            old.onVideoFormatChange(null);
+            old.onVideoFrameArrival(null);
+            old.setErrorListener(null);
+        }
+
+        device.onVideoFormatChange(System.out::println);
+        device.onVideoFrameArrival(System.out::println);
+        device.setErrorListener(System.out::println);
+
         IDeckLink deckLink = device.getDeckLinkInstance();
         IDeckLinkProfileAttributes deckLinkAttributes = find(deckLink, IDeckLinkProfileAttributes.class);
 

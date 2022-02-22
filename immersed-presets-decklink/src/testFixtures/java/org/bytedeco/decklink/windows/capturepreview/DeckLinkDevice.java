@@ -33,7 +33,7 @@ import org.bytedeco.systems.windows.GUID;
  */
 public class DeckLinkDevice extends IDeckLinkInputCallback
 {
-    private static enum DeviceError
+    public static enum DeviceError
     {
         NoError, EnableVideoInputFailed, StartStreamsFailed, ReenableVideoInputFailed,
     };
