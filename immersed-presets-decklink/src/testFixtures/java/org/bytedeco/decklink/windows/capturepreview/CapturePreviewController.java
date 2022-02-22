@@ -15,6 +15,7 @@ import org.bytedeco.decklink.IDeckLinkConfiguration;
 import org.bytedeco.decklink.IDeckLinkDisplayMode;
 import org.bytedeco.decklink.IDeckLinkInput;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
+import org.bytedeco.decklink.windows.Utility;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.PointerPointer;
 
@@ -24,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionModel;
@@ -99,6 +101,9 @@ public class CapturePreviewController
 
     @FXML
     private ToggleButton captureToggle;
+
+    @FXML
+    private Label signalLabel;
 
     @FXML
     public void initialize()
@@ -247,7 +252,16 @@ public class CapturePreviewController
         }));
         device.onVideoFrameArrival(videoFrame ->
         {
-            System.out.println(Thread.currentThread().hashCode());
+            if (Utility.isFlagPresent(videoFrame::GetFlags, bmdFrameHasNoInputSource))
+            {
+                Platform.runLater(() -> signalLabel.setText("No valid input signal"));
+            }
+            else
+            {
+                Platform.runLater(() -> signalLabel.setText(""));
+            }
+
+            System.out.println(videoFrame.GetRowBytes() * videoFrame.GetWidth());
         });
         device.setErrorListener(System.out::println);
 

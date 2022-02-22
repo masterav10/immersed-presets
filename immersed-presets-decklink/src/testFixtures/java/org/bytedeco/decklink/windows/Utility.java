@@ -1,5 +1,7 @@
 package org.bytedeco.decklink.windows;
 
+import java.util.function.IntSupplier;
+
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.IntPointer;
@@ -13,6 +15,23 @@ public class Utility
     public static int error()
     {
         return error;
+    }
+
+    public static final boolean isFlagPresent(IntSupplier func, int flag1, int... moreFlags)
+    {
+        return isFlagPresent(func.getAsInt(), flag1, moreFlags);
+    }
+
+    public static final boolean isFlagPresent(int value, int flag1, int... moreFlags)
+    {
+        boolean isPresent = (value & flag1) == flag1;
+
+        for (int flag : moreFlags)
+        {
+            isPresent = isPresent && ((value & flag) == flag);
+        }
+
+        return isPresent;
     }
 
     public static final boolean GetFlag(int key, IDeckLinkProfileAttributes attributes)

@@ -11,6 +11,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -48,11 +50,20 @@
                               <Insets top="15.0" />
                            </padding>
                         </GridPane>
-                        <AnchorPane prefWidth="391.0">
+                        <HBox>
                            <children>
-                              <ToggleButton fx:id="captureToggle" mnemonicParsing="false" text="Start capture" AnchorPane.rightAnchor="8.0" />
+                              <Label fx:id="signalLabel">
+                                 <padding>
+                                    <Insets left="100.0" />
+                                 </padding>
+                              </Label>
+                              <Pane prefHeight="0.0" HBox.hgrow="ALWAYS" />
+                              <ToggleButton fx:id="captureToggle" mnemonicParsing="false" text="Start capture" />
                            </children>
-                        </AnchorPane>
+                           <VBox.margin>
+                              <Insets right="8.0" />
+                           </VBox.margin>
+                        </HBox>
                      </children>
                   </VBox>
                   <AnchorPane style="-fx-border-style: solid; -fx-border-insets: 5; -fx-border-color: rgb(211,211,211);" VBox.vgrow="ALWAYS">
