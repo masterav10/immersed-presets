@@ -25,7 +25,8 @@ import org.bytedeco.systems.presets.windows;
                 },
                 include = {
                     "DeckLinkAPI_h.h", "DeckLinkAPI_i.c"
-                }
+                },
+                define="NO_JNI_DETACH_THREAD"
             )
         }
 )

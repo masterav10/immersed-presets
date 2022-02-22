@@ -42,7 +42,6 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     private Consumer<IDeckLinkVideoInputFrame> m_videoFrameArrivedCallback;
     private IntConsumer m_videoFormatChangedCallback;
 
-    private int m_refCount = 1;
     private IDeckLink m_deckLink;
     private IDeckLinkInput m_deckLinkInput;
     private IDeckLinkConfiguration m_deckLinkConfig;
@@ -215,23 +214,23 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
         if (!m_applyDetectedInputMode)
             return (int) S_OK;
 
-        if ((detectedSignalFlags & bmdDetectedVideoInputRGB444) == 1)
+        if ((detectedSignalFlags & bmdDetectedVideoInputRGB444) > 0)
         {
-            if ((detectedSignalFlags & bmdDetectedVideoInput8BitDepth) == 1)
+            if ((detectedSignalFlags & bmdDetectedVideoInput8BitDepth) > 0)
                 pixelFormat = bmdFormat8BitARGB;
-            else if ((detectedSignalFlags & bmdDetectedVideoInput10BitDepth) == 1)
+            else if ((detectedSignalFlags & bmdDetectedVideoInput10BitDepth) > 0)
                 pixelFormat = bmdFormat10BitRGB;
-            else if ((detectedSignalFlags & bmdDetectedVideoInput12BitDepth) == 1)
+            else if ((detectedSignalFlags & bmdDetectedVideoInput12BitDepth) > 0)
                 pixelFormat = bmdFormat12BitRGB;
             else
                 // Invalid color depth for RGB
                 return (int) E_INVALIDARG;
         }
-        else if ((detectedSignalFlags & bmdDetectedVideoInputYCbCr422) == 1)
+        else if ((detectedSignalFlags & bmdDetectedVideoInputYCbCr422) > 0)
         {
-            if ((detectedSignalFlags & bmdDetectedVideoInput8BitDepth) == 1)
+            if ((detectedSignalFlags & bmdDetectedVideoInput8BitDepth) > 0)
                 pixelFormat = bmdFormat8BitYUV;
-            else if ((detectedSignalFlags & bmdDetectedVideoInput10BitDepth) == 1)
+            else if ((detectedSignalFlags & bmdDetectedVideoInput10BitDepth) > 0)
                 pixelFormat = bmdFormat10BitYUV;
             else
                 // Invalid color depth for YUV
@@ -241,8 +240,8 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
             // Unexpected detected video input format flags
             return (int) E_INVALIDARG;
 
-        if (((notificationEvents & bmdVideoInputDisplayModeChanged) == 1)
-                || ((notificationEvents & bmdVideoInputColorspaceChanged) == 1))
+        if (((notificationEvents & bmdVideoInputDisplayModeChanged) > 0)
+                || ((notificationEvents & bmdVideoInputColorspaceChanged) > 0))
         {
             // Stop the capture
             m_deckLinkInput.StopStreams();
@@ -279,9 +278,7 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     @Override
     public int VideoInputFrameArrived(IDeckLinkVideoInputFrame videoFrame, IDeckLinkAudioInputPacket audioPacket)
     {
-        boolean isFrameNull = videoFrame != null && !videoFrame.isNull();
-
-        if (!isFrameNull && (m_videoFrameArrivedCallback != null))
+        if (videoFrame != null && (m_videoFrameArrivedCallback != null))
         {
             m_videoFrameArrivedCallback.accept(videoFrame);
         }

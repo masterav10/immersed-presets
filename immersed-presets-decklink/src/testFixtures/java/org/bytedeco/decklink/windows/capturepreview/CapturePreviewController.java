@@ -235,8 +235,20 @@ public class CapturePreviewController
             old.setErrorListener(null);
         }
 
-        device.onVideoFormatChange(System.out::println);
-        device.onVideoFrameArrival(System.out::println);
+        device.onVideoFormatChange(newMode -> Platform.runLater(() ->
+        {
+            for (DisplayMode mode : this.videoFormatDropdown.getItems())
+            {
+                if (mode.constant == newMode)
+                {
+                    this.videoFormatDropdown.setValue(mode);
+                }
+            }
+        }));
+        device.onVideoFrameArrival(videoFrame ->
+        {
+            System.out.println(Thread.currentThread().hashCode());
+        });
         device.setErrorListener(System.out::println);
 
         IDeckLink deckLink = device.getDeckLinkInstance();
