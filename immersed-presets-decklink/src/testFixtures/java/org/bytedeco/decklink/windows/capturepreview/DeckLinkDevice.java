@@ -15,7 +15,11 @@ import org.bytedeco.decklink.IDeckLinkDisplayModeIterator;
 import org.bytedeco.decklink.IDeckLinkHDMIInputEDID;
 import org.bytedeco.decklink.IDeckLinkInput;
 import org.bytedeco.decklink.IDeckLinkInputCallback;
+import org.bytedeco.decklink.IDeckLinkMutableVideoFrame;
+import org.bytedeco.decklink.IDeckLinkOutput;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
+import org.bytedeco.decklink.IDeckLinkVideoConversion;
+import org.bytedeco.decklink.IDeckLinkVideoFrame;
 import org.bytedeco.decklink.IDeckLinkVideoInputFrame;
 import org.bytedeco.decklink.windows.IUnknownSupport;
 import org.bytedeco.decklink.windows.Utility;
@@ -39,11 +43,14 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     };
 
     private Consumer<DeviceError> m_errorListener;
-    private Consumer<IDeckLinkVideoInputFrame> m_videoFrameArrivedCallback;
+    private Consumer<IDeckLinkVideoFrame> m_videoFrameArrivedCallback;
     private IntConsumer m_videoFormatChangedCallback;
 
     private IDeckLink m_deckLink;
     private IDeckLinkInput m_deckLinkInput;
+    private IDeckLinkOutput m_deckLinkOutput;
+    private IDeckLinkVideoConversion m_deckLinkConverter;
+
     private IDeckLinkConfiguration m_deckLinkConfig;
     private IDeckLinkHDMIInputEDID m_deckLinkHDMIInputEDID;
 
@@ -58,6 +65,10 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     {
         this.m_deckLink = device;
         this.m_deckLinkInput = find(device, IDeckLinkInput.class);
+
+        this.m_deckLinkOutput = find(device, IDeckLinkOutput.class);
+        this.m_deckLinkConverter = create(IDeckLinkVideoConversion.class);
+
         this.m_deckLinkConfig = find(device, IDeckLinkConfiguration.class);
         this.m_deckLinkHDMIInputEDID = find(device, IDeckLinkHDMIInputEDID.class);
 
@@ -280,7 +291,34 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     {
         if (videoFrame != null && (m_videoFrameArrivedCallback != null))
         {
-            m_videoFrameArrivedCallback.accept(videoFrame);
+            if (Utility.isFlagPresent(videoFrame::GetFlags, bmdFrameHasNoInputSource))
+            {
+                m_videoFrameArrivedCallback.accept(videoFrame);
+            }
+            else
+            {
+                final int width = (int) videoFrame.GetWidth();
+                final int height = (int) videoFrame.GetHeight();
+                final int rowBytes = (int) width * 4;
+                final int pixelFormat = bmdFormat8BitBGRA;
+                final int flags = videoFrame.GetFlags();
+
+                try (PointerPointer<IDeckLinkMutableVideoFrame> framePtr = new PointerPointer<>(1L))
+                {
+                    if (this.m_deckLinkOutput.CreateVideoFrame(width, height, rowBytes, pixelFormat, flags,
+                            framePtr) == S_OK)
+                    {
+                        IDeckLinkMutableVideoFrame outputFrame = framePtr.get(IDeckLinkMutableVideoFrame.class);
+
+                        if (this.m_deckLinkConverter.ConvertFrame(videoFrame, outputFrame) == S_OK)
+                        {
+                            m_videoFrameArrivedCallback.accept(outputFrame);
+                        }
+
+                        outputFrame.Release();
+                    }
+                }
+            }
         }
 
         return (int) S_OK;
@@ -331,7 +369,7 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
         this.m_videoFormatChangedCallback = callback;
     }
 
-    public void onVideoFrameArrival(Consumer<IDeckLinkVideoInputFrame> callback)
+    public void onVideoFrameArrival(Consumer<IDeckLinkVideoFrame> callback)
     {
         this.m_videoFrameArrivedCallback = callback;
     }

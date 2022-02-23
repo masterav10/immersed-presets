@@ -4,10 +4,13 @@ import static org.bytedeco.decklink.windows.ComSupport.*;
 import static org.bytedeco.global.decklink.*;
 import static org.bytedeco.global.windef.*;
 
+import java.nio.ByteBuffer;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.BiConsumer;
 
 import org.bytedeco.decklink.IDeckLink;
@@ -15,14 +18,19 @@ import org.bytedeco.decklink.IDeckLinkConfiguration;
 import org.bytedeco.decklink.IDeckLinkDisplayMode;
 import org.bytedeco.decklink.IDeckLinkInput;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
+import org.bytedeco.decklink.IDeckLinkVideoFrame;
 import org.bytedeco.decklink.windows.Utility;
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.CharPointer;
+import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -30,6 +38,9 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
 
@@ -105,6 +116,15 @@ public class CapturePreviewController
     @FXML
     private Label signalLabel;
 
+    private final Deque<WritableImage> queue = new LinkedBlockingDeque<>(3);
+
+    public CapturePreviewController()
+    {
+        queue.add(new WritableImage(1, 1));
+        queue.add(new WritableImage(1, 1));
+        queue.add(new WritableImage(1, 1));
+    }
+
     @FXML
     public void initialize()
     {
@@ -114,6 +134,27 @@ public class CapturePreviewController
                      .bind(parent.widthProperty());
         previewCanvas.heightProperty()
                      .bind(parent.heightProperty());
+
+        AnimationTimer timer = new AnimationTimer()
+        {
+            private WritableImage lastImage;
+
+            @Override
+            public void handle(long now)
+            {
+                final WritableImage imageToDraw = queue.peek();
+
+                if (imageToDraw.getWidth() > 1.0 && lastImage != imageToDraw)
+                {
+                    GraphicsContext ctx = previewCanvas.getGraphicsContext2D();
+                    ctx.drawImage(imageToDraw, 0.0, 0.0, previewCanvas.getWidth(), previewCanvas.getHeight());
+                }
+
+                this.lastImage = imageToDraw;
+            }
+        };
+
+        timer.start();
 
         configure(inputDeviceDropdown, this::onDeviceSelected, view ->
         {
@@ -250,6 +291,7 @@ public class CapturePreviewController
                 }
             }
         }));
+
         device.onVideoFrameArrival(videoFrame ->
         {
             if (Utility.isFlagPresent(videoFrame::GetFlags, bmdFrameHasNoInputSource))
@@ -258,10 +300,9 @@ public class CapturePreviewController
             }
             else
             {
+                writeToImage(videoFrame);
                 Platform.runLater(() -> signalLabel.setText(""));
             }
-
-            System.out.println(videoFrame.GetRowBytes() * videoFrame.GetWidth());
         });
         device.setErrorListener(System.out::println);
 
@@ -303,6 +344,39 @@ public class CapturePreviewController
         if (!inputConnections.isEmpty() && model.getSelectedIndex() < 0)
         {
             model.select(0);
+        }
+    }
+
+    private void writeToImage(IDeckLinkVideoFrame videoFrame)
+    {
+        try (BytePointer pointer = new BytePointer())
+        {
+            if (videoFrame.GetBytes(pointer) == S_OK)
+            {
+                final long w = videoFrame.GetWidth();
+                final long h = videoFrame.GetHeight();
+                final long bytes = videoFrame.GetRowBytes() * h;
+
+                final ByteBuffer buffer = pointer.limit(bytes)
+                                                 .asByteBuffer();
+
+                WritableImage image = this.queue.poll();
+
+                if (image.getWidth() != w && image.getHeight() != h)
+                {
+                    image = new WritableImage((int) w, (int) h);
+                }
+
+                final int x = 0;
+                final int y = 0;
+                final PixelFormat<ByteBuffer> pixelFormat = PixelFormat.getByteBgraPreInstance();
+                final int scanlineStride = (int) videoFrame.GetRowBytes();
+
+                final PixelWriter writer = image.getPixelWriter();
+                writer.setPixels(x, y, (int) w, (int) h, pixelFormat, buffer, scanlineStride);
+
+                this.queue.add(image);
+            }
         }
     }
 
