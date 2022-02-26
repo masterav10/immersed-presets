@@ -48,6 +48,25 @@ public class decklink implements InfoMapper
         infoMap.put(new Info("BSTR")
                 .cast().valueTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer"));
         
+        // Deprecated interfaces.
+        infoMap.put(new Info("CBMDStreamingDiscovery_v10_8","CDeckLinkDiscovery_v10_11","CDeckLinkDiscovery_v10_8","CDeckLinkGLScreenPreviewHelper_v7_6",
+                "CDeckLinkIterator_v10_11","CDeckLinkIterator_v10_8","CDeckLinkIterator_v8_0","CDeckLinkVideoConversion_v7_6",
+                "IDeckLinkAttributes_v10_11","IDeckLinkAudioInputPacket_v7_1","IDeckLinkConfiguration_v10_11",
+                "IDeckLinkConfiguration_v10_2","IDeckLinkConfiguration_v10_4","IDeckLinkConfiguration_v10_9",
+                "IDeckLinkConfiguration_v7_6","IDeckLinkDeckControlStatusCallback_v8_1","IDeckLinkDeckControl_v7_9",
+                "IDeckLinkDeckControl_v8_1","IDeckLinkDisplayModeIterator_v7_1","IDeckLinkDisplayModeIterator_v7_6",
+                "IDeckLinkDisplayMode_v7_1","IDeckLinkDisplayMode_v7_6","IDeckLinkEncoderConfiguration_v10_5",
+                "IDeckLinkEncoderInput_v10_11","IDeckLinkGLScreenPreviewHelper_v7_6","IDeckLinkInputCallback_v11_5_1",
+                "IDeckLinkInputCallback_v7_1","IDeckLinkInputCallback_v7_3","IDeckLinkInputCallback_v7_6","IDeckLinkInput_v10_11",
+                "IDeckLinkInput_v11_4","IDeckLinkInput_v11_5_1","IDeckLinkInput_v7_1","IDeckLinkInput_v7_3","IDeckLinkInput_v7_6",
+                "IDeckLinkInput_v9_2","IDeckLinkIterator_v8_0","IDeckLinkMutableVideoFrame_v7_6","IDeckLinkNotification_v10_11",
+                "IDeckLinkOutput_v10_11","IDeckLinkOutput_v11_4","IDeckLinkOutput_v7_1","IDeckLinkOutput_v7_3","IDeckLinkOutput_v7_6",
+                "IDeckLinkOutput_v9_9","IDeckLinkScreenPreviewCallback_v7_6","IDeckLinkTimecode_v7_6","IDeckLinkVideoConversion_v7_6",
+                "IDeckLinkVideoFrameMetadataExtensions_v11_5","IDeckLinkVideoFrame_v7_1","IDeckLinkVideoFrame_v7_6","IDeckLinkVideoInputFrame_v7_1",
+                "IDeckLinkVideoInputFrame_v7_3","IDeckLinkVideoInputFrame_v7_6","IDeckLinkVideoOutputCallback_v7_1","IDeckLinkVideoOutputCallback_v7_6",
+                "IDeckLink_v8_0")
+                .skip());
+        
         // Use CallbackPrinter to update this list
         infoMap.put(new Info("IBMDStreamingDeviceNotificationCallback","IBMDStreamingH264InputCallback","IDeckLinkAudioOutputCallback",
                              "IDeckLinkDeckControlStatusCallback","IDeckLinkDeckControlStatusCallback_v8_1","IDeckLinkDeviceNotificationCallback",

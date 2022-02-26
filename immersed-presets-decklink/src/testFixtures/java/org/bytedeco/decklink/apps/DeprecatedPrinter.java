@@ -1,4 +1,4 @@
-package org.bytedeco.decklink.windows;
+package org.bytedeco.decklink.apps;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +9,9 @@ import java.util.Arrays;
 
 import org.bytedeco.decklink.presets.decklink;
 import org.bytedeco.javacpp.annotation.Properties;
+import org.bytedeco.javacpp.tools.Info;
 
-public class CallbackPrinter
+public class DeprecatedPrinter
 {
     public static void main(String[] args) throws ClassNotFoundException, IOException
     {
@@ -28,8 +29,12 @@ public class CallbackPrinter
              .map(Path::toString)
              .map(name -> name.substring(0, name.lastIndexOf('.')))
              .map(name -> "\"" + name + "\"")
-             .filter(name -> name.contains("Callback"))
+             .filter(name -> name.contains("_v"))
              .reduce((a, b) -> a + "," + b)
-             .ifPresent(System.out::println);
+             .ifPresent(s ->
+             {
+                 System.out.format("infoMap.put(new Info(%s)\n", s);
+                 System.out.println(".skip();");
+             });
     }
 }
