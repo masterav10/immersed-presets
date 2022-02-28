@@ -1,5 +1,9 @@
 package org.bytedeco.decklink.presets;
 
+import org.bytedeco.javacpp.Pointer;
+import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.javacpp.annotation.ByRef;
+import org.bytedeco.javacpp.annotation.Cast;
 import org.bytedeco.javacpp.annotation.NoException;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
@@ -8,6 +12,7 @@ import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
 import org.bytedeco.systems.presets.windows;
+import org.bytedeco.systems.windows.GUID;
 
 //@formatter:off
 @Properties(
@@ -36,7 +41,26 @@ public class com implements InfoMapper
     @Override
     public void map(InfoMap infoMap)
     {   
-        infoMap.put(new Info("Unknwnbase.h", "combaseapi.h", "WTypesbase.h")
+        // whitelist of various COM files
+        infoMap.put(new Info("objbase.h").linePatterns(
+                "// COM initialization flags; passed to CoInitialize.", 
+                "} COINIT;"));
+        
+        infoMap.put(new Info("Unknwnbase.h").linePatterns(
+                "EXTERN_C const IID IID_IUnknown;",
+                ".*};"));
+        
+        infoMap.put(new Info("WTypesbase.h").linePatterns(
+                "enum tagCLSCTX",
+                ".*CLSCTX;"));
+        
+//        infoMap.put(new Info("combaseapi.h").linePatterns(
+//                "typedef enum tagCOINITBASE", 
+//                ".*COINITBASE;",
+//                "// With DCOM, CLSCTX_REMOTE_SERVER should be included", 
+//                "// class registration flags; passed to CoRegisterClassObject"));
+        
+        infoMap.put(new Info("combaseapi.h")
                 .linePatterns(".*__MIDL_itf.*").skip());
         
         infoMap.put(new Info("IUnknown").purify(false).virtualize());
@@ -57,16 +81,16 @@ public class com implements InfoMapper
         
         // skip these until we figure out how to deal with COM
         infoMap.put(new Info("LPSTREAM", "LPMALLOC", "LPSURROGATE", "LPMARSHAL", "IAgileReference",
-                             "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE",
-                             "PRPC_MESSAGE", "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO", 
-                             "IClassFactory_CreateInstance_Proxy", "IClassFactory_LockServer_Stub", 
-                             "IClassFactory_RemoteLockServer_Proxy", "IClassFactory_RemoteCreateInstance_Proxy",
-                             "IClassFactory_LockServer_Proxy", "IClassFactory_CreateInstance_Stub", 
-                             "IUnknown_QueryInterface_Proxy", "LPMALLOCSPY", "IMalloc", "LPINITIALIZESPY", 
-                             "LPMESSAGEFILTER", "IChannelHook", "LPDATAADVISEHOLDER", "IStorage", "ILockBytes", 
-                             "IFillLockBytes", "IBindCtx", "uCLSSPEC", "QUERYCONTEXT", "LPMONIKER", "BIND_OPTS", "LPBC", 
-                             "IBindStatusCallback", "LPRUNNINGOBJECTTABLE", "FILETIME", "RPC_IF_HANDLE", "HYPER_SIZEDARR",
-                             "BYTE_BLOB", "BYTE_SIZEDARR", "FLAGGED_BYTE_BLOB", "SID_AND_ATTRIBUTES")
+                "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE",
+                "PRPC_MESSAGE", "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO", 
+                "IClassFactory_CreateInstance_Proxy", "IClassFactory_LockServer_Stub", 
+                "IClassFactory_RemoteLockServer_Proxy", "IClassFactory_RemoteCreateInstance_Proxy",
+                "IClassFactory_LockServer_Proxy", "IClassFactory_CreateInstance_Stub", 
+                "IUnknown_QueryInterface_Proxy", "LPMALLOCSPY", "IMalloc", "LPINITIALIZESPY", 
+                "LPMESSAGEFILTER", "IChannelHook", "LPDATAADVISEHOLDER", "IStorage", "ILockBytes", 
+                "IFillLockBytes", "IBindCtx", "uCLSSPEC", "QUERYCONTEXT", "LPMONIKER", "BIND_OPTS", "LPBC", 
+                "IBindStatusCallback", "LPRUNNINGOBJECTTABLE", "FILETIME", "RPC_IF_HANDLE", "HYPER_SIZEDARR",
+                "BYTE_BLOB", "BYTE_SIZEDARR", "FLAGGED_BYTE_BLOB", "SID_AND_ATTRIBUTES")
                 .skip());
         
         infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", "THIS_",
@@ -95,4 +119,22 @@ public class com implements InfoMapper
         
         infoMap.put(new Info("LPHANDLE", "LPUNKNOWN").cast().valueTypes("PointerPointer"));
     }
+    
+    
+    // Adding these methods directly; cannot filter using whilelist
+//    public static native @Cast("HRESULT") int CoInitializeEx(
+//            @Cast("LPVOID") Pointer pvReserved,
+//            @Cast("DWORD") int dwCoInit
+//            );
+//    
+//    public static native void CoUninitialize(
+//            );
+//    
+//    public static native @Cast("HRESULT") int CoCreateInstance(
+//            @Cast("const IID*") @ByRef GUID rclsid,
+//            @Cast("LPUNKNOWN") PointerPointer pUnkOuter,
+//            @Cast("DWORD") int dwClsContext,
+//            @Cast("const IID*") @ByRef GUID riid,
+//            @Cast("LPVOID*") PointerPointer ppv
+//            );
 }
