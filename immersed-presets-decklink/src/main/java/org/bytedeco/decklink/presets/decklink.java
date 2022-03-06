@@ -24,9 +24,10 @@ import org.bytedeco.systems.presets.windows;
                     "C:/Tools/Blackmagic DeckLink SDK 12.1/Win/include"
                 },
                 include = {
-                    "DeckLinkAPI_h.h", "DeckLinkAPI_i.c"
+                    "DeckLinkAPI_h.h", "DeckLinkAPI_i.c", "com.h", "windows-com.cpp"
                 },
                 define="NO_JNI_DETACH_THREAD"
+                
             )
         }
 )

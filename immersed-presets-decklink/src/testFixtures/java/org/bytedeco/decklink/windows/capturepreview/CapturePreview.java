@@ -1,8 +1,8 @@
 package org.bytedeco.decklink.windows.capturepreview;
 
-import static org.bytedeco.global.com.*;
-
 import java.net.URL;
+
+import org.bytedeco.global.decklink;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -24,8 +24,6 @@ public class CapturePreview extends Application
     {
         this.controller = new CapturePreviewController();
 
-        CoInitializeEx(null, COINIT_MULTITHREADED);
-
         discovery = new DeckLinkDiscovery();
         discovery.onDeviceArrival(this.controller::onDeviceAdded);
         discovery.onDeviceRemoval(this.controller::onDeviceRemoved);
@@ -35,7 +33,7 @@ public class CapturePreview extends Application
     public void start(Stage primaryStage) throws Exception
     {
         discovery.enable();
-        
+
         final URL resource = CapturePreview.class.getResource("CapturePreview.fxml");
         final FXMLLoader loader = new FXMLLoader();
         loader.setLocation(resource);
@@ -55,7 +53,7 @@ public class CapturePreview extends Application
         discovery.disable();
         discovery.Release();
 
-        CoUninitialize();
+        decklink.CloseCom();
     }
 
 }

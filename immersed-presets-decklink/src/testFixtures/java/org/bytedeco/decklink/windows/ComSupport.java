@@ -1,9 +1,8 @@
 package org.bytedeco.decklink.windows;
 
-import static org.bytedeco.decklink.windows.Utility.*;
-import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.windef.*;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ import org.springframework.util.ReflectionUtils;
 public class ComSupport
 {
     private static final Map<Class<?>, GUID> IIDS = new HashMap<>();
-    private static final Map<Class<?>, GUID> CLSIDS = new HashMap<>();
+    private static final Map<Class<?>, Method> CLSIDS = new HashMap<>();
 
     static
     {
@@ -37,24 +36,47 @@ public class ComSupport
             final String name = method.getName();
             final boolean noParams = method.getParameterCount() == 0;
             final boolean returnsGuid = GUID.class.equals(method.getReturnType());
+            final boolean isIID = name.startsWith("IID_");
 
-            if (returnsGuid && noParams)
+            if (returnsGuid && noParams && isIID)
             {
-                final Map<Class<?>, GUID> map = name.startsWith("IID_") ? IIDS : CLSIDS;
-                final String typeName = name.replace("CLSID_C", "I")
-                                            .replace("IID_", "");
+                try
+                {
+                    final String typeName = name.replace("IID_", "");
+                    final String className = String.format("%s.%s", packageName, typeName);
+                    final Class<?> type = Class.forName(className);
 
+                    final Object guid = ReflectionUtils.invokeMethod(method, null);
+                    IIDS.put(type, (GUID) guid);
+                }
+                catch (ClassNotFoundException e)
+                {
+                    // skip, no associated class
+                }
+            }
+        });
+
+        ReflectionUtils.doWithMethods(decklink.class, method ->
+        {
+            final boolean noParams = method.getParameterCount() == 0;
+            final boolean returnsGuid = GUID.class.equals(method.getReturnType());
+            
+            final String name = method.getName();
+            final boolean isCLSID = name.startsWith("CLSID_C");
+
+            if (returnsGuid && noParams && isCLSID)
+            {
+                final String typeName = name.replace("CLSID_C", "I");
+                final String methodName = name.replace("CLSID_C", "Get");
                 final String className = String.format("%s.%s", packageName, typeName);
 
                 try
                 {
                     final Object guid = ReflectionUtils.invokeMethod(method, null);
                     final Class<?> type = Class.forName(className);
+                    final Method getter = ReflectionUtils.findMethod(decklink.class, methodName, PointerPointer.class);
 
-                    if (map != null)
-                    {
-                        map.put(type, (GUID) guid);
-                    }
+                    CLSIDS.put(type, getter);
                 }
                 catch (ClassNotFoundException e)
                 {
@@ -98,14 +120,11 @@ public class ComSupport
      */
     public static <T extends Pointer> T create(Class<T> type)
     {
-        final GUID clsid = CLSIDS.get(type);
-        final GUID iid = IIDS.get(type);
-        final PointerPointer<?> pUnkOuter = null;
-        final int dwClsContext = CLSCTX_ALL;
+        final Method rootMethod = CLSIDS.get(type);
 
         try (PointerPointer<T> ref = new PointerPointer<>(1L))
         {
-            check(CoCreateInstance(clsid, pUnkOuter, dwClsContext, iid, ref));
+            ReflectionUtils.invokeMethod(rootMethod, null, ref);
             return ref.get(type);
         }
     }

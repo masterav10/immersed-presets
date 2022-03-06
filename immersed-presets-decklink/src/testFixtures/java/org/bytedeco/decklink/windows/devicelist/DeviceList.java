@@ -9,6 +9,7 @@ import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkAPIInformation;
 import org.bytedeco.decklink.IDeckLinkIterator;
 import org.bytedeco.decklink.IDeckLinkProfileAttributes;
+import org.bytedeco.global.decklink;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.LongPointer;
 import org.bytedeco.javacpp.PointerPointer;
@@ -27,8 +28,8 @@ public final class DeviceList
         int printFlags = 0;
 
         // Initialize COM on this thread
-        check(CoInitializeEx(null, COINIT_MULTITHREADED));
-
+        // automatically happens under the hood
+        
         // Create an IDeckLinkIterator object to enumerate all DeckLink cards in the
         // system
         IDeckLinkIterator deckLinkIterator = create(IDeckLinkIterator.class);
@@ -117,7 +118,7 @@ public final class DeviceList
         }
 
         // Uninitalize COM on this thread
-        CoUninitialize();
+        decklink.CloseCom();
 
         // If no DeckLink cards were found in the system, inform the user
         if (numDevices == 0)
