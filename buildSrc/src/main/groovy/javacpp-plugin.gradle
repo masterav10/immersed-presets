@@ -11,6 +11,12 @@ repositories {
 }
 
 sourceSets {
+	cpp {
+    	java {
+    		srcDirs = ["${projectDir}/src/main/cpp"]
+    	}
+	}
+    
 	javacpp {
 		compileClasspath += sourceSets.main.output
         runtimeClasspath += sourceSets.main.output
@@ -65,8 +71,13 @@ task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 			args presetClass
 		}
 		// arguments to pass to the application
+		
 		args "-properties", "${props}"
 		args "-d", "${outputDir}"
+		
+		sourceSets.cpp.java.srcDirs.each {
+			args "-Dplatform.includepath=${it}"
+		}
 	}
 }
 
@@ -101,6 +112,10 @@ task javacppJniGenerate(type: JavaExec, dependsOn: compileJavacppJava) {
 		args presetClass
 		args "-properties", "${props}"
 		args "-d", "${outputDir}"
+		
+		sourceSets.cpp.java.srcDirs.each {
+			args "-Dplatform.includepath=${it}"
+		}
 	}
 }
 
