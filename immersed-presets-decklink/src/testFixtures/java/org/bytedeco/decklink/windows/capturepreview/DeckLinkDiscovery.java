@@ -87,13 +87,13 @@ public class DeckLinkDiscovery extends IDeckLinkDeviceNotificationCallback
     }
 
     @Override
-    public int AddRef()
+    public long AddRef()
     {
         return m_com.AddRef();
     }
 
     @Override
-    public int Release()
+    public long Release()
     {
         return m_com.Release();
     }

@@ -85,13 +85,13 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     }
 
     @Override
-    public int AddRef()
+    public long AddRef()
     {
         return com.AddRef();
     }
 
     @Override
-    public int Release()
+    public long Release()
     {
         return com.Release();
     }

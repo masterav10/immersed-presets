@@ -33,27 +33,12 @@ public class com implements InfoMapper
     public void map(InfoMap infoMap)
     {   
         // whitelist of various COM files
-        infoMap.put(new Info("objbase.h").linePatterns(
-                "// COM initialization flags; passed to CoInitialize.", 
-                "} COINIT;"));
         
         infoMap.put(new Info("Unknwnbase.h").linePatterns(
                 "EXTERN_C const IID IID_IUnknown;",
                 ".*};"));
         
-        infoMap.put(new Info("WTypesbase.h").linePatterns(
-                "enum tagCLSCTX",
-                ".*CLSCTX;"));
-        
-//        infoMap.put(new Info("combaseapi.h").linePatterns(
-//                "typedef enum tagCOINITBASE", 
-//                ".*COINITBASE;",
-//                "// With DCOM, CLSCTX_REMOTE_SERVER should be included", 
-//                "// class registration flags; passed to CoRegisterClassObject"));
-        
-        infoMap.put(new Info("combaseapi.h")
-                .linePatterns(".*__MIDL_itf.*").skip());
-        
+        // for extending in java
         infoMap.put(new Info("IUnknown").purify(false).virtualize());
         
         infoMap.put(new Info("IUnknown::QueryInterface")
@@ -70,44 +55,9 @@ public class com implements InfoMapper
                 "defined(__cplusplus) && !defined(CINTERFACE)")
                 .define(true));
         
-        // skip these until we figure out how to deal with COM
-        infoMap.put(new Info("LPSTREAM", "LPMALLOC", "LPSURROGATE", "LPMARSHAL", "IAgileReference",
-                "SOLE_AUTHENTICATION_SERVICE", "IActivationFilter", "RPC_AUTHZ_HANDLE",
-                "PRPC_MESSAGE", "DllGetClassObject", "DllCanUnloadNow", "COSERVERINFO", 
-                "IClassFactory_CreateInstance_Proxy", "IClassFactory_LockServer_Stub", 
-                "IClassFactory_RemoteLockServer_Proxy", "IClassFactory_RemoteCreateInstance_Proxy",
-                "IClassFactory_LockServer_Proxy", "IClassFactory_CreateInstance_Stub", 
-                "IUnknown_QueryInterface_Proxy", "LPMALLOCSPY", "IMalloc", "LPINITIALIZESPY", 
-                "LPMESSAGEFILTER", "IChannelHook", "LPDATAADVISEHOLDER", "IStorage", "ILockBytes", 
-                "IFillLockBytes", "IBindCtx", "uCLSSPEC", "QUERYCONTEXT", "LPMONIKER", "BIND_OPTS", "LPBC", 
-                "IBindStatusCallback", "LPRUNNINGOBJECTTABLE", "FILETIME", "RPC_IF_HANDLE", "HYPER_SIZEDARR",
-                "BYTE_BLOB", "BYTE_SIZEDARR", "FLAGGED_BYTE_BLOB", "SID_AND_ATTRIBUTES")
-                .skip());
-        
-        infoMap.put(new Info("WINOLEAPI", "FARSTRUCT", "REFCLSID", "CONST_VTBL", "__STRUCT__", "interface", "THIS_",
-                             "PURE", "THIS", "_Outptr_opt_result_buffer_",
-                             "_Outptr_result_buffer_", "_Pre_maybenull_", "__drv_allocatesMem", "__RPC__in", 
-                             "_COM_Outptr_", "__RPC__deref_out", "__RPC__deref_out_opt", "HFILE_ERROR", "__RPC_FAR",
-                             "In_opt_z_", "_fastcall", "wIsEqualGUID")
-                .annotations().cppTypes());
-        
         infoMap.put(new Info("CLSID")
                 .valueTypes("GUID"));
         infoMap.put(new Info("LPCLSID")
                 .cast().pointerTypes("GUID"));
-        
-        infoMap.put(new Info("void *", "RPC_AUTH_IDENTITY_HANDLE")
-                .cast().valueTypes("Pointer").pointerTypes("PointerPointer"));
-        
-        infoMap.put(new Info("ULONG", "APTTYPE", "APTTYPEQUALIFIER")
-                .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
-        
-        infoMap.put(new Info("LPCOLESTR", "LPOLESTR", "BSTR")
-                .cast().pointerTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer<CharPointer>"));
-        
-        infoMap.put(new Info("OLECHAR")
-                .cast().valueTypes("char").pointerTypes("CharPointer", "CharBuffer", "char[]"));
-        
-        infoMap.put(new Info("LPHANDLE", "LPUNKNOWN").cast().valueTypes("PointerPointer"));
     }
 }

@@ -21,7 +21,7 @@ final class IUnknownImpl extends IUnknown implements IUnknownSupport
     }
 
     @Override
-    public int AddRef()
+    public long AddRef()
     {
         return ++m_refCount;
     }
@@ -55,7 +55,7 @@ final class IUnknownImpl extends IUnknown implements IUnknownSupport
     }
 
     @Override
-    public int Release()
+    public long Release()
     {
         int newRefValue = --m_refCount;
 

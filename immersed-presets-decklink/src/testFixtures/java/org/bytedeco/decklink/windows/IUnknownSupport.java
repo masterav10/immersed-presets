@@ -26,9 +26,9 @@ public interface IUnknownSupport
         return new IUnknownImpl(parent);
     }
 
-    int AddRef();
+    long AddRef();
 
     int QueryInterface(GUID riid, PointerPointer ppv);
 
-    int Release();
+    long Release();
 }
