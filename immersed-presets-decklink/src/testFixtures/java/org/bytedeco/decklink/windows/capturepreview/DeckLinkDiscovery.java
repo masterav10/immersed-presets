@@ -81,7 +81,7 @@ public class DeckLinkDiscovery extends IDeckLinkDeviceNotificationCallback
     }
 
     @Override
-    public int QueryInterface(GUID riid, PointerPointer ppv)
+    public long QueryInterface(GUID riid, PointerPointer ppv)
     {
         return m_com.QueryInterface(riid, ppv);
     }

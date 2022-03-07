@@ -79,7 +79,7 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     }
 
     @Override
-    public int QueryInterface(GUID iid, PointerPointer ppv)
+    public long QueryInterface(GUID iid, PointerPointer ppv)
     {
         return com.QueryInterface(iid, ppv);
     }

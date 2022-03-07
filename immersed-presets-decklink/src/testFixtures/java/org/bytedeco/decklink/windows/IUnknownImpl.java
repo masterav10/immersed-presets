@@ -27,7 +27,7 @@ final class IUnknownImpl extends IUnknown implements IUnknownSupport
     }
 
     @Override
-    public int QueryInterface(GUID iid, PointerPointer ppv)
+    public long QueryInterface(GUID iid, PointerPointer ppv)
     {
         int result = (int) E_NOINTERFACE;
 

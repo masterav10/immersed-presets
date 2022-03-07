@@ -28,7 +28,7 @@ public interface IUnknownSupport
 
     long AddRef();
 
-    int QueryInterface(GUID riid, PointerPointer ppv);
+    long QueryInterface(GUID riid, PointerPointer ppv);
 
     long Release();
 }
