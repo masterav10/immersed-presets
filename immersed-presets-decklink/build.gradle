@@ -9,8 +9,10 @@ ext {
 
 version "$decklinkSdkVersion-$javacppVersion"
 
+
 dependencies {
-	api "org.bytedeco:systems-platform:$javacppVersion"
+	api "org.bytedeco:systems:$javacppVersion"
+	api "org.bytedeco:systems:$javacppVersion:$javacppPlatform"
 }
 
 task compileIdl(type: Exec) {

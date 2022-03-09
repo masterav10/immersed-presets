@@ -5,7 +5,8 @@ plugins {
 version "$cudaPresetsVersion-$javacppVersion"
 
 dependencies {
-	api "org.bytedeco:cuda-platform:$version"
+	api "org.bytedeco:cuda:$version"
+	implementation "org.bytedeco:cuda:$version:$javacppPlatform"
 }
 
 javacppGenerate {
