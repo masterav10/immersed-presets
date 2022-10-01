@@ -56,17 +56,13 @@ tasks.named('wrapper') {
 		// location of compiler to use
 		def vcvarsall = Paths.get("C:","Program Files (x86)","Microsoft Visual Studio",
 		                      "2019","Community","VC","Auxiliary","Build","vcvars64.bat");
-		
-		lines.add(0, "where /q cl.exe || call \"${vcvarsall}\"");
-		
-		/*
+	
 		for(int i = 0; i < lines.size(); i++) {
-			if(lines[i] == ':execute') {
-				lines.add(i + 1, "where /q cl.exe || call \"${vcvarsall}\" amd64");
+			if(lines[i].contains("@echo off")) {
+				lines.add(i + 1, "where /q cl.exe || call \"${vcvarsall}\"");
 				break;
 			}
 		}
-		*/
 		
 		Files.write(file, lines);
 	}
