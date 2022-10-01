@@ -9,6 +9,12 @@ ext {
 
 version "$decklinkSdkVersion-$javacppVersion"
 
+sourceSets {	
+	testFixtures {
+		compileClasspath += sourceSets.javacpp.output
+        runtimeClasspath += sourceSets.javacpp.output
+	}
+}
 
 dependencies {
 	api "org.bytedeco:systems:$javacppVersion"
