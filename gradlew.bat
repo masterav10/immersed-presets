@@ -1,3 +1,4 @@
+where /q cl.exe || call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 @rem
 @rem Copyright 2015 the original author or authors.
 @rem
