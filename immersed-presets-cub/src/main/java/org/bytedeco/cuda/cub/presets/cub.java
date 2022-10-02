@@ -10,7 +10,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
 
 //@formatter:off
 @Properties(
-        inherit = cudart.class, 
+        inherit = {cudart.class}, 
         names = {"windows-x86_64"}, 
         target = "org.bytedeco.cuda.cub", 
         global = "org.bytedeco.cuda.global.cub",
@@ -18,13 +18,15 @@ import org.bytedeco.javacpp.tools.InfoMapper;
             @Platform(
                 include = {
                     "<cub/device/device_histogram.cuh>",
+                    "<cub/device/device_merge_sort.cuh>",
                     "<cub/device/device_partition.cuh>",
                     "<cub/device/device_radix_sort.cuh>",
                     "<cub/device/device_reduce.cuh>",
                     "<cub/device/device_run_length_encode.cuh>",
                     "<cub/device/device_scan.cuh>",
                     "<cub/device/device_segmented_radix_sort.cuh>",
-                    "<cub/device/device_segmented_reduce.cuh>", 
+                    "<cub/device/device_segmented_reduce.cuh>",
+                    // "<cub/device/device_segmented_sort.cuh>",
                     "<cub/device/device_select.cuh>",
                     "<cub/device/device_spmv.cuh>"
                 }
@@ -37,11 +39,17 @@ public class cub implements InfoMapper
 {
     @Override
     public void map(InfoMap infoMap)
-    {        
-        infoMap.put(new Info("CUB_NS_PREFIX", "CUB_RUNTIME_FUNCTION").cppTypes().annotations());
+    {   
+        infoMap.put(new Info("CUB_NAMESPACE_BEGIN").cppText("#define CUB_NAMESPACE_BEGIN namespace cub {").cppTypes());
+        infoMap.put(new Info("CUB_NAMESPACE_END").cppText("#define CUB_NAMESPACE_END }").cppTypes());
+        
+        infoMap.put(new Info("CUB_RUNTIME_FUNCTION").cppTypes().annotations());
         infoMap.put(new Info("DoubleBuffer").skip());
         
+        infoMap.put(new Info("std::size_t").cast().valueTypes("long").pointerTypes("SizeTPointer"));
+        
         device_histogram(infoMap);
+        device_merge_sort(infoMap);
         device_partition(infoMap);
         device_radix_sort(infoMap);
         device_reduce(infoMap);
@@ -49,6 +57,7 @@ public class cub implements InfoMapper
         device_scan(infoMap);
         device_segmented_radix_sort(infoMap);
         device_segmented_reduce(infoMap);
+        device_segmented_sort(infoMap);
         device_select(infoMap);
         device_spmv(infoMap);
     }
@@ -84,6 +93,27 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<4,4,int*,unsigned int,int,int>").javaNames("MultiHistogramRange4Channel"));
     }
 
+    private static void device_merge_sort(InfoMap infoMap)
+    {
+        // cub::DeviceMergeSort::SortPairs<KeyIteratorT,ValueIteratorT,OffsetT,CompareOpT>
+        // infoMap.put(new Info("cub::DeviceMergeSort::SortPairs<KeyIteratorT,ValueIteratorT,int,CompareOpT>").javaNames("SortPairs"));
+
+        // cub::DeviceMergeSort::SortPairsCopy<KeyInputIteratorT,ValueInputIteratorT,KeyIteratorT,ValueIteratorT,OffsetT,CompareOpT>
+        // infoMap.put(new Info("cub::DeviceMergeSort::SortPairsCopy<KeyInputIteratorT,ValueInputIteratorT,KeyIteratorT,ValueIteratorT,int,CompareOpT>").javaNames("SortPairsCopy"));
+
+        // cub::DeviceMergeSort::SortKeys<KeyIteratorT,OffsetT,CompareOpT>
+        // infoMap.put(new Info("cub::DeviceMergeSort::SortKeys<KeyIteratorT,int,CompareOpT>").javaNames("SortKeys"));
+
+        // cub::DeviceMergeSort::SortKeysCopy<KeyInputIteratorT,KeyIteratorT,OffsetT,CompareOpT>
+        // infoMap.put(new Info("cub::DeviceMergeSort::SortKeysCopy<KeyInputIteratorT,KeyIteratorT,int,CompareOpT>").javaNames("SortKeysCopy"));
+
+        // cub::DeviceMergeSort::StableSortPairs<KeyIteratorT,ValueIteratorT,OffsetT,CompareOpT>
+        // infoMap.put(new Info("cub::DeviceMergeSort::StableSortPairs<KeyIteratorT,ValueIteratorT,int,CompareOpT>").javaNames("StableSortPairs"));
+
+        // cub::DeviceMergeSort::StableSortKeys<KeyIteratorT,OffsetT,CompareOpT>
+        // infoMap.put(new Info("cub::DeviceMergeSort::StableSortKeys<KeyIteratorT,int,CompareOpT>").javaNames("StableSortKeys"));
+    }
+
     private static void device_partition(InfoMap infoMap)
     {
         // cub::DevicePartition::Flagged<InputIteratorT,FlagIterator,OutputIteratorT,NumSelectedIteratorT>
@@ -93,6 +123,10 @@ public class cub implements InfoMapper
         // cub::DevicePartition::If<InputIteratorT,OutputIteratorT,NumSelectedIteratorT,SelectOp>
         // infoMap.put(new Info("cub::DevicePartition::If<float*,float*,int*,SelectOp>").javaNames("If"));
         // infoMap.put(new Info("cub::DevicePartition::If<int*,int*,int*,SelectOp>").javaNames("If"));
+
+        // cub::DevicePartition::If<InputIteratorT,FirstOutputIteratorT,SecondOutputIteratorT,UnselectedOutputIteratorT,NumSelectedIteratorT,SelectFirstPartOp,SelectSecondPartOp>
+        // infoMap.put(new Info("cub::DevicePartition::If<float*,FirstOutputIteratorT,SecondOutputIteratorT,UnselectedOutputIteratorT,int*,SelectFirstPartOp,SelectSecondPartOp>").javaNames("If"));
+        // infoMap.put(new Info("cub::DevicePartition::If<int*,FirstOutputIteratorT,SecondOutputIteratorT,UnselectedOutputIteratorT,int*,SelectFirstPartOp,SelectSecondPartOp>").javaNames("If"));
     }
 
     private static void device_radix_sort(InfoMap infoMap)
@@ -165,6 +199,10 @@ public class cub implements InfoMapper
         // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<float*,float*,ScanOpT,InitValueT>").javaNames("ExclusiveScan"));
         // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<int*,int*,ScanOpT,InitValueT>").javaNames("ExclusiveScan"));
 
+        // cub::DeviceScan::ExclusiveScan<InputIteratorT,OutputIteratorT,ScanOpT,InitValueT,InitValueIterT>
+        // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<float*,float*,ScanOpT,InitValueT,InitValueIterT>").javaNames("ExclusiveScan"));
+        // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<int*,int*,ScanOpT,InitValueT,InitValueIterT>").javaNames("ExclusiveScan"));
+
         // cub::DeviceScan::InclusiveSum<InputIteratorT,OutputIteratorT>
         infoMap.put(new Info("cub::DeviceScan::InclusiveSum<float*,float*>").javaNames("InclusiveSum"));
         infoMap.put(new Info("cub::DeviceScan::InclusiveSum<int*,int*>").javaNames("InclusiveSum"));
@@ -172,52 +210,97 @@ public class cub implements InfoMapper
         // cub::DeviceScan::InclusiveScan<InputIteratorT,OutputIteratorT,ScanOpT>
         // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<float*,float*,ScanOpT>").javaNames("InclusiveScan"));
         // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<int*,int*,ScanOpT>").javaNames("InclusiveScan"));
+
+        // cub::DeviceScan::ExclusiveSumByKey<KeysInputIteratorT,ValuesInputIteratorT,ValuesOutputIteratorT,EqualityOpT>
+
+        // cub::DeviceScan::ExclusiveScanByKey<KeysInputIteratorT,ValuesInputIteratorT,ValuesOutputIteratorT,ScanOpT,InitValueT,EqualityOpT>
+
+        // cub::DeviceScan::InclusiveSumByKey<KeysInputIteratorT,ValuesInputIteratorT,ValuesOutputIteratorT,EqualityOpT>
+
+        // cub::DeviceScan::InclusiveScanByKey<KeysInputIteratorT,ValuesInputIteratorT,ValuesOutputIteratorT,ScanOpT,EqualityOpT>
     }
 
     private static void device_segmented_radix_sort(InfoMap infoMap)
     {
-        // cub::DeviceSegmentedRadixSort::SortPairs<KeyT,ValueT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairs<float,float,unsigned int*>").javaNames("SortPairs"));
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairs<int,int,unsigned int*>").javaNames("SortPairs"));
+        // cub::DeviceSegmentedRadixSort::SortPairs<KeyT,ValueT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairs<float,float,int*,int*>").javaNames("SortPairs"));
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairs<int,int,int*,int*>").javaNames("SortPairs"));
 
-        // cub::DeviceSegmentedRadixSort::SortPairsDescending<KeyT,ValueT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairsDescending<float,float,unsigned int*>").javaNames("SortPairsDescending"));
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairsDescending<int,int,unsigned int*>").javaNames("SortPairsDescending"));
+        // cub::DeviceSegmentedRadixSort::SortPairsDescending<KeyT,ValueT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairsDescending<float,float,int*,int*>").javaNames("SortPairsDescending"));
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortPairsDescending<int,int,int*,int*>").javaNames("SortPairsDescending"));
 
-        // cub::DeviceSegmentedRadixSort::SortKeys<KeyT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeys<float,unsigned int*>").javaNames("SortKeys"));
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeys<int,unsigned int*>").javaNames("SortKeys"));
+        // cub::DeviceSegmentedRadixSort::SortKeys<KeyT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeys<float,int*,int*>").javaNames("SortKeys"));
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeys<int,int*,int*>").javaNames("SortKeys"));
 
-        // cub::DeviceSegmentedRadixSort::SortKeysDescending<KeyT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeysDescending<float,unsigned int*>").javaNames("SortKeysDescending"));
-        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeysDescending<int,unsigned int*>").javaNames("SortKeysDescending"));
+        // cub::DeviceSegmentedRadixSort::SortKeysDescending<KeyT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeysDescending<float,int*,int*>").javaNames("SortKeysDescending"));
+        infoMap.put(new Info("cub::DeviceSegmentedRadixSort::SortKeysDescending<int,int*,int*>").javaNames("SortKeysDescending"));
     }
 
     private static void device_segmented_reduce(InfoMap infoMap)
     {
-        // cub::DeviceSegmentedReduce::Reduce<InputIteratorT,OutputIteratorT,OffsetIteratorT,ReductionOp,T>
-        // infoMap.put(new Info("cub::DeviceSegmentedReduce::Reduce<float*,float*,unsigned int*,ReductionOp,T>").javaNames("Reduce"));
-        // infoMap.put(new Info("cub::DeviceSegmentedReduce::Reduce<int*,int*,unsigned int*,ReductionOp,T>").javaNames("Reduce"));
+        // cub::DeviceSegmentedReduce::Reduce<InputIteratorT,OutputIteratorT,BeginOffsetIteratorT,EndOffsetIteratorT,ReductionOp,T>
+        // infoMap.put(new Info("cub::DeviceSegmentedReduce::Reduce<float*,float*,int*,int*,ReductionOp,T>").javaNames("Reduce"));
+        // infoMap.put(new Info("cub::DeviceSegmentedReduce::Reduce<int*,int*,int*,int*,ReductionOp,T>").javaNames("Reduce"));
 
-        // cub::DeviceSegmentedReduce::Sum<InputIteratorT,OutputIteratorT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedReduce::Sum<float*,float*,unsigned int*>").javaNames("Sum"));
-        infoMap.put(new Info("cub::DeviceSegmentedReduce::Sum<int*,int*,unsigned int*>").javaNames("Sum"));
+        // cub::DeviceSegmentedReduce::Sum<InputIteratorT,OutputIteratorT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedReduce::Sum<float*,float*,int*,int*>").javaNames("Sum"));
+        infoMap.put(new Info("cub::DeviceSegmentedReduce::Sum<int*,int*,int*,int*>").javaNames("Sum"));
 
-        // cub::DeviceSegmentedReduce::Min<InputIteratorT,OutputIteratorT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedReduce::Min<float*,float*,unsigned int*>").javaNames("Min"));
-        infoMap.put(new Info("cub::DeviceSegmentedReduce::Min<int*,int*,unsigned int*>").javaNames("Min"));
+        // cub::DeviceSegmentedReduce::Min<InputIteratorT,OutputIteratorT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedReduce::Min<float*,float*,int*,int*>").javaNames("Min"));
+        infoMap.put(new Info("cub::DeviceSegmentedReduce::Min<int*,int*,int*,int*>").javaNames("Min"));
 
-        // cub::DeviceSegmentedReduce::ArgMin<InputIteratorT,OutputIteratorT,OffsetIteratorT>
-        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMin<float*,float*,unsigned int*>").javaNames("ArgMin"));
-        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMin<int*,int*,unsigned int*>").javaNames("ArgMin"));
+        // cub::DeviceSegmentedReduce::ArgMin<InputIteratorT,OutputIteratorT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMin<float*,float*,int*,int*>").javaNames("ArgMin"));
+        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMin<int*,int*,int*,int*>").javaNames("ArgMin"));
 
-        // cub::DeviceSegmentedReduce::Max<InputIteratorT,OutputIteratorT,OffsetIteratorT>
-        infoMap.put(new Info("cub::DeviceSegmentedReduce::Max<float*,float*,unsigned int*>").javaNames("Max"));
-        infoMap.put(new Info("cub::DeviceSegmentedReduce::Max<int*,int*,unsigned int*>").javaNames("Max"));
+        // cub::DeviceSegmentedReduce::Max<InputIteratorT,OutputIteratorT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedReduce::Max<float*,float*,int*,int*>").javaNames("Max"));
+        infoMap.put(new Info("cub::DeviceSegmentedReduce::Max<int*,int*,int*,int*>").javaNames("Max"));
 
-        // cub::DeviceSegmentedReduce::ArgMax<InputIteratorT,OutputIteratorT,OffsetIteratorT>
-        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMax<float*,float*,unsigned int*>").javaNames("ArgMax"));
-        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMax<int*,int*,unsigned int*>").javaNames("ArgMax"));
+        // cub::DeviceSegmentedReduce::ArgMax<InputIteratorT,OutputIteratorT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMax<float*,float*,int*,int*>").javaNames("ArgMax"));
+        // infoMap.put(new Info("cub::DeviceSegmentedReduce::ArgMax<int*,int*,int*,int*>").javaNames("ArgMax"));
+    }
+
+    private static void device_segmented_sort(InfoMap infoMap)
+    {
+        /*
+        // cub::DeviceSegmentedSort::SortKeys<KeyT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortKeys<float,int*,int*>").javaNames("SortKeys"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortKeys<int,int*,int*>").javaNames("SortKeys"));
+
+        // cub::DeviceSegmentedSort::SortKeysDescending<KeyT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortKeysDescending<float,int*,int*>").javaNames("SortKeysDescending"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortKeysDescending<int,int*,int*>").javaNames("SortKeysDescending"));
+
+        // cub::DeviceSegmentedSort::StableSortKeys<KeyT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortKeys<float,int*,int*>").javaNames("StableSortKeys"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortKeys<int,int*,int*>").javaNames("StableSortKeys"));
+
+        // cub::DeviceSegmentedSort::StableSortKeysDescending<KeyT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortKeysDescending<float,int*,int*>").javaNames("StableSortKeysDescending"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortKeysDescending<int,int*,int*>").javaNames("StableSortKeysDescending"));
+
+        // cub::DeviceSegmentedSort::SortPairs<KeyT,ValueT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortPairs<float,float,int*,int*>").javaNames("SortPairs"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortPairs<int,int,int*,int*>").javaNames("SortPairs"));
+
+        // cub::DeviceSegmentedSort::SortPairsDescending<KeyT,ValueT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortPairsDescending<float,float,int*,int*>").javaNames("SortPairsDescending"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::SortPairsDescending<int,int,int*,int*>").javaNames("SortPairsDescending"));
+
+        // cub::DeviceSegmentedSort::StableSortPairs<KeyT,ValueT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortPairs<float,float,int*,int*>").javaNames("StableSortPairs"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortPairs<int,int,int*,int*>").javaNames("StableSortPairs"));
+
+        // cub::DeviceSegmentedSort::StableSortPairsDescending<KeyT,ValueT,BeginOffsetIteratorT,EndOffsetIteratorT>
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortPairsDescending<float,float,int*,int*>").javaNames("StableSortPairsDescending"));
+        infoMap.put(new Info("cub::DeviceSegmentedSort::StableSortPairsDescending<int,int,int*,int*>").javaNames("StableSortPairsDescending"));
+        */
     }
 
     private static void device_select(InfoMap infoMap)

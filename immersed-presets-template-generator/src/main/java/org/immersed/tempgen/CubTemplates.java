@@ -66,6 +66,7 @@ public class CubTemplates
         add(aggregate(InputIteratorT(), OutputIteratorT()));
         add(aggregate(KeyT(), ValueT()));
         add(aggregate(InputIteratorT(), UniqueOutputIteratorT()));
+        add(aggregate(BeginOffsetIteratorT(), EndOffsetIteratorT()));
 
         add(CounterT());
         add(OffsetT());
@@ -80,11 +81,25 @@ public class CubTemplates
         add(ValueT());
     }
 
+    private TemplateResolver EndOffsetIteratorT()
+    {
+        return byReplacement().template("EndOffsetIteratorT")
+                              .addReplacements(asPointers(OFFSET_TYPES))
+                              .build();
+    }
+
+    private TemplateResolver BeginOffsetIteratorT()
+    {
+        return byReplacement().template("BeginOffsetIteratorT")
+                              .addReplacements(asPointers(OFFSET_TYPES))
+                              .build();
+    }
+
     private static TemplateResolver OffsetIteratorT()
     {
         return byReplacement().template("OffsetIteratorT")
-                .addReplacements(asPointers(COUNTER_TYPES))
-                .build();
+                              .addReplacements(asPointers(COUNTER_TYPES))
+                              .build();
     }
 
     private static TemplateResolver OffsetsOutputIteratorT()

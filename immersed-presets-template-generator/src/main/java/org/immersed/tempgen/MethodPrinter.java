@@ -36,7 +36,7 @@ public class MethodPrinter
 {
     private static final class Cpp14DefinitionListener extends CPP14ParserBaseListener
     {
-        private final FunctionDefinition.Builder builder = new FunctionDefinition.Builder();
+        private final FunctionDefinition.Builder builder = new FunctionDefinition.Builder().namespace("cub");
 
         @Override
         public void exitNamespaceDefinition(NamespaceDefinitionContext ctx)
@@ -169,6 +169,35 @@ public class MethodPrinter
             collectors.put(deviceCuh, listener);
         }
 
+        System.out.println();
+
+        collectors.entrySet()
+                  .stream()
+                  .map(e ->
+                  {
+                      Path cuh = e.getKey();
+                      Path relativePath = includeDir.relativize(cuh);
+                      String headerDef = relativePath.toString()
+                                                     .replace(File.separatorChar, '/');
+
+                      return "\"<" + headerDef + ">\"";
+                  })
+                  .reduce((a, b) -> a + ",\n" + b)
+                  .ifPresent(System.out::println);
+
+        System.out.println();
+
+        collectors.forEach((cuh, collector) ->
+        {
+            String name = cuh.getFileName()
+                             .toString();
+            String method = name.substring(0, name.lastIndexOf('.'));
+
+            System.out.println(String.format("%s(infoMap);", method));
+        });
+
+        System.out.println();
+
         collectors.forEach((cuh, collector) ->
         {
             Path relativePath = includeDir.relativize(cuh);
@@ -176,9 +205,9 @@ public class MethodPrinter
                                            .replace(File.separatorChar, '/');
 
             System.out.println();
-            //System.out.println("\"<" + headerDef + ">\"");
-            //System.out.println();
-            
+            // System.out.println("\"<" + headerDef + ">\"");
+            // System.out.println();
+
             String name = cuh.getFileName()
                              .toString();
             String method = name.substring(0, name.lastIndexOf('.'));
