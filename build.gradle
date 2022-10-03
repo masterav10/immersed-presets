@@ -20,6 +20,8 @@ allprojects {
 }
 
 subprojects {
+   	apply plugin: "java-test-fixtures"
+
 	repositories {
 	    mavenLocal()
 	    mavenCentral()
@@ -27,13 +29,13 @@ subprojects {
 	}
 	
 	dependencies {		
-		implementation platform("org.springframework.boot:spring-boot-dependencies:2.5.0")
+		api platform("org.springframework.boot:spring-boot-dependencies:2.5.0")
 
-		testImplementation 'org.springframework:spring-core'
-		testImplementation "org.slf4j:slf4j-simple"	
-		testImplementation 'org.junit.jupiter:junit-jupiter'
-		testImplementation 'org.assertj:assertj-core'
-		testImplementation 'org.mockito:mockito-core'
+		testFixturesApi 'org.springframework:spring-core'
+		testFixturesApi "org.slf4j:slf4j-simple"	
+		testFixturesApi 'org.junit.jupiter:junit-jupiter'
+		testFixturesApi 'org.assertj:assertj-core'
+		testFixturesApi 'org.mockito:mockito-core'
 	}
 	
 	test {

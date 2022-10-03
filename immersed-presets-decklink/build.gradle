@@ -1,6 +1,5 @@
 plugins {
 	id 'javacpp-plugin'
-	id 'java-test-fixtures'
 }
 
 ext {
