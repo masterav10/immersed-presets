@@ -16,8 +16,11 @@ sourceSets {
 }
 
 dependencies {
-	api "org.bytedeco:systems:$javacppVersion"
-	api "org.bytedeco:systems:$javacppVersion:$javacppPlatform"
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	api "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
 }
 
 task compileIdl(type: Exec) {

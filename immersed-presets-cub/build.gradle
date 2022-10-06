@@ -2,11 +2,17 @@ plugins {
 	id 'javacpp-plugin'
 }
 
-version "$cudaPresetsVersion-$javacppVersion"
+version "$cudaPresetsVersion-$javacppPresetVersion"
 
 dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+
 	api "org.bytedeco:cuda:$version"
 	implementation "org.bytedeco:cuda:$version:$javacppPlatform"
+	
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
 }
 
 javacppGenerate {
@@ -23,5 +29,8 @@ javacppJniGenerate {
 		args "-Xcompiler", "--gpu-architecture=sm_61"
 		// issue with /GL and Thurst: https://github.com/bytedeco/javacpp/issues/485
 		args "-Xcompiler", "-Xcompiler=-GL-"
+		// args "-Xcompiler", "--std=c++14"
+		args "-Xcompiler", "-Xcompiler=/Zc:__cplusplus"
+		
 	}
 }
