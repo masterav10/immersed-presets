@@ -50,8 +50,10 @@ task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 		props = "${javacppPlatform}"
 		presetClass = "org.bytedeco.**"
 	}
+	systemProperties['javacpp.plugin.project.buildDir'] = "${buildDir}"
+	
 	mainClass = 'org.bytedeco.javacpp.tools.Builder'
-			
+				
 	// port 5005; can debug using eclipse Remote Java Application
 	debug = false
 	
@@ -101,6 +103,8 @@ task javacppJniGenerate(type: JavaExec, dependsOn: compileJavacppJava) {
 	debug = false
 	
 	doFirst {
+		javacppGenerate.systemProperties.each{ key, value -> systemProperties[key] = value}
+	
 		// Executable jars can have only _one_ jar on the classpath.
 		classpath = files(sourceSets.javacpp.compileClasspath)
 		workingDir = sourceSets.javacpp.java.outputDir
