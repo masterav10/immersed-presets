@@ -1,0 +1,97 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+ext {
+	cascLibHome = "${buildDir}/unpacked/dist/CascLib-$casclibVersion"
+	cascLibPlatform = "x64"
+	cascLibProject = "CascLib"
+	cascLibLib = "${cascLibHome}/bin/${cascLibProject}/"
+}
+
+def cascLibConfig = ["ReleaseAD","ReleaseAS","ReleaseUD","ReleaseUS"]
+
+version "$casclibVersion-$javacppPresetVersion"
+
+repositories {
+    ivy {
+        url 'https://github.com/'
+
+		// https://github.com/ladislav-zezula/CascLib/archive/refs/tags/$casclibVersion.zip
+        patternLayout {
+            artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
+        }
+
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+}
+
+configurations {
+	zip
+}
+
+dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+	
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
+	
+	zip "ladislav-zezula:CascLib:$casclibVersion@zip"
+}
+
+
+task unzipCascLib(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("CascLib") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${buildDir}/unpacked/dist")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+
+task upgradeCascLib(type:Exec, dependsOn: unzipCascLib) {
+	workingDir "$cascLibHome"
+
+	commandLine "devenv", 
+				"${cascLibHome}/CascLib_vs19.sln",
+				"/Upgrade"
+}
+
+for(String config : cascLibConfig)
+{
+	tasks.register("compileCascLib${config}", Exec) {
+		workingDir "$cascLibHome"
+	
+		commandLine "msbuild", 
+					"${cascLibHome}/CascLib_vs19.sln",
+					"-t:${cascLibProject}",
+					"-p:Configuration=${config}",
+					"-p:Platform=${cascLibPlatform}"
+	}
+
+	tasks["compileCascLib${config}"].dependsOn upgradeCascLib
+	javacppGenerate.dependsOn tasks["compileCascLib${config}"]
+}
+
+javacppGenerate {
+	systemProperties['casclib.src'] = "${cascLibHome}/src"
+	
+	for(String config : cascLibConfig)
+	{
+		systemProperties["casclib.bin.${config}"] = "${cascLibHome}/bin/${cascLibProject}/${cascLibPlatform}/${config}"
+	}
+	
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+
+	doFirst {
+		args "-nodelete"
+	}
+}
