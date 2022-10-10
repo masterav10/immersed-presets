@@ -1,6 +1,6 @@
 package org.bytedeco.casclib;
 
-import static org.bytedeco.global.casclib.*;
+import static org.bytedeco.casclib.global.casclib.*;
 
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.Pointer;

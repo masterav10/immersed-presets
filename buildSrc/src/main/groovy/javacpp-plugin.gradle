@@ -137,7 +137,7 @@ task javacppNativeJar(type: Jar){
 jar.dependsOn javacppJniGenerate, javacppNativeJar
 
 jar {
-	from sourceSets.javacpp.java
+	from sourceSets.javacpp.java.outputDir
 }
 
 java {

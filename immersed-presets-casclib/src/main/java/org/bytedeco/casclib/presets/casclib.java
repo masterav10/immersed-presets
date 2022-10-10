@@ -18,7 +18,7 @@ import org.bytedeco.systems.presets.windows;
         },
         names = {"windows-x86_64"}, 
         target = "org.bytedeco.casclib", 
-        global = "org.bytedeco.global.casclib",
+        global = "org.bytedeco.casclib.global.casclib",
         value = {
             @Platform(
                 include = {
