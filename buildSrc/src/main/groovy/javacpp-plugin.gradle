@@ -1,5 +1,6 @@
 plugins {
 	id 'java-library'
+	id 'maven-publish'
 }
 
 ext {
@@ -137,6 +138,31 @@ jar.dependsOn javacppJniGenerate, javacppNativeJar
 
 jar {
 	from sourceSets.javacpp.java
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact source: javacppNativeJar, classifier: "${javacppPlatform}", extension: "jar"
+            versionMapping {
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
 }
 
 // tasks['cleanEclipse'].dependsOn clean
