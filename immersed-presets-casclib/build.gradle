@@ -9,7 +9,7 @@ ext {
 	cascLibLib = "${cascLibHome}/bin/${cascLibProject}/"
 }
 
-def cascLibConfig = ["ReleaseAD","ReleaseAS","ReleaseUD","ReleaseUS"]
+def cascLibConfig = ["ReleaseAD","ReleaseAS","ReleaseUD","ReleaseUS","DebugAD","DebugAS","DebugUD","DebugUS"]
 
 version "$casclibVersion-$javacppPresetVersion"
 
@@ -93,5 +93,6 @@ javacppJniGenerate {
 
 	doFirst {
 		args "-nodelete"
+		args "-Xcompiler", "/Z7"
 	}
 }

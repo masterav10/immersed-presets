@@ -25,7 +25,7 @@ import org.bytedeco.systems.presets.windows;
                     "CascLib.h"
                 },
                 link = {
-                    "CascLibRUS"
+                    "CascLibDUS"
                 },
                 define = {
                     "_WINSOCKAPI_"
