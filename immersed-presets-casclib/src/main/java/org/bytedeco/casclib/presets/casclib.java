@@ -67,8 +67,7 @@ public class casclib implements InfoMapper, LoadEnabled
                 {
                     linkPaths.add(value);
                 }
-            }
-            
+            } 
         }
     }
     
