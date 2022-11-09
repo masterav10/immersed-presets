@@ -32,7 +32,7 @@ subprojects {
 		api platform("org.springframework.boot:spring-boot-dependencies:2.5.0")
 
 		testFixturesApi 'org.springframework:spring-core'
-		testFixturesApi "org.slf4j:slf4j-simple"	
+		testImplementation "org.slf4j:slf4j-simple"	
 		testFixturesApi 'org.junit.jupiter:junit-jupiter'
 		testFixturesApi 'org.assertj:assertj-core'
 		testFixturesApi 'org.mockito:mockito-core'
