@@ -1,5 +1,9 @@
 package org.bytedeco.decklink.presets;
 
+import java.util.List;
+
+import org.bytedeco.javacpp.ClassProperties;
+import org.bytedeco.javacpp.LoadEnabled;
 import org.bytedeco.javacpp.annotation.NoException;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
@@ -20,9 +24,6 @@ import org.bytedeco.systems.presets.windows;
         global = "org.bytedeco.global.decklink",
         value = {
             @Platform(
-                includepath = {
-                    "C:/Tools/Blackmagic DeckLink SDK 12.1/Win/include"
-                },
                 include = {
                     "DeckLinkAPI_h.h", "DeckLinkAPI_i.c", "com.h", "windows-com.cpp"
                 },
@@ -33,7 +34,7 @@ import org.bytedeco.systems.presets.windows;
         }
 )
 @NoException
-public class decklink implements InfoMapper
+public class decklink implements InfoMapper, LoadEnabled
 {   
     @Override
     public void map(InfoMap infoMap)
@@ -77,5 +78,18 @@ public class decklink implements InfoMapper
                              "IDeckLinkScreenPreviewCallback","IDeckLinkScreenPreviewCallback_v7_6","IDeckLinkVideoOutputCallback",
                              "IDeckLinkVideoOutputCallback_v7_1","IDeckLinkVideoOutputCallback_v7_6")
                 .purify(false).virtualize());
+    }
+
+    @Override
+    public void init(ClassProperties properties)
+    {
+        final String srcs = System.getProperty("decklink.src");
+        
+        List<String> includePaths = properties.get("platform.includepath");
+        
+        if(!includePaths.contains(srcs))
+        {
+            includePaths.add(srcs);
+        }
     }
 }

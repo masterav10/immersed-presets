@@ -2,11 +2,7 @@ plugins {
 	id 'javacpp-plugin'
 }
 
-ext {
-	decklinkSdkVersion='12.1'
-}
-
-version "$decklinkSdkVersion-$javacppVersion"
+version "$decklinkPresetsVersion-$javacppVersion"
 
 sourceSets {	
 	testFixtures {
@@ -24,7 +20,7 @@ dependencies {
 }
 
 task compileIdl(type: Exec) {
-	workingDir = "C:/Tools/Blackmagic DeckLink SDK ${decklinkSdkVersion}/Win/include"
+	workingDir = "C:/Tools/Blackmagic DeckLink SDK ${decklinkPresetsVersion}/Win/include"
 
 	doFirst {
 		commandLine "midl.exe"
@@ -41,6 +37,8 @@ task compileIdl(type: Exec) {
 javacppGenerate.dependsOn compileIdl
 
 javacppGenerate {
+	systemProperties['decklink.src'] = "${compileIdl.workingDir}"
+	
 	debug = false
 }
 
