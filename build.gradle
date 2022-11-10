@@ -44,6 +44,10 @@ subprojects {
 			events "passed", "skipped", "failed"
 		}
 	}
+	
+	testFixturesJar {
+		from sourceSets.testFixtures.java
+	}
 }
 
 import java.nio.file.Paths;
