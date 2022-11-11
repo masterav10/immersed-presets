@@ -23,9 +23,9 @@ subprojects {
    	apply plugin: "java-test-fixtures"
 
 	repositories {
-	    mavenLocal()
 	    mavenCentral()
 	    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+	    mavenLocal()
 	}
 	
 	dependencies {		
