@@ -51,7 +51,7 @@ public class decklink implements InfoMapper, LoadEnabled
         infoMap.put(new Info("BSTR")
                 .cast().valueTypes("CharPointer", "CharBuffer", "char[]").pointerTypes("PointerPointer"));
         
-        // Deprecated interfaces.
+        // Use DeprecatedPrinter to update this list
         infoMap.put(new Info("CBMDStreamingDiscovery_v10_8","CDeckLinkDiscovery_v10_11","CDeckLinkDiscovery_v10_8","CDeckLinkGLScreenPreviewHelper_v7_6",
                 "CDeckLinkIterator_v10_11","CDeckLinkIterator_v10_8","CDeckLinkIterator_v8_0","CDeckLinkVideoConversion_v7_6",
                 "IDeckLinkAttributes_v10_11","IDeckLinkAudioInputPacket_v7_1","IDeckLinkConfiguration_v10_11",
