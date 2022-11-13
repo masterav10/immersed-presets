@@ -1,4 +1,4 @@
-package org.bytedeco.decklink.presets;
+package org.bytedeco.windows.presets;
 
 import org.bytedeco.javacpp.annotation.NoException;
 import org.bytedeco.javacpp.annotation.Platform;

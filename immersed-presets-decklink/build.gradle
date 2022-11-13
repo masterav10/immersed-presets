@@ -12,8 +12,10 @@ sourceSets {
 }
 
 dependencies {
+    api project(":immersed-presets-windows")
+
     api "org.bytedeco:javacpp:$javacppVersion"
-    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+    runtimeOnly "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
 
 	api "org.bytedeco:systems:$javacppPresetVersion"
 	api "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"

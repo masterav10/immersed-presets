@@ -1,0 +1,25 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+version "$javacppVersion"
+
+dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    runtimeOnly "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	runtimeOnly "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
+}
+
+javacppGenerate {	
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+
+	doFirst {
+		args "-nodelete"
+	}
+}

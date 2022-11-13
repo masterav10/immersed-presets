@@ -11,6 +11,8 @@ import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
 import org.bytedeco.systems.presets.windows;
+import org.bytedeco.windows.presets.com;
+import org.bytedeco.windows.presets.windef;
 
 //@formatter:off
 @Properties(
