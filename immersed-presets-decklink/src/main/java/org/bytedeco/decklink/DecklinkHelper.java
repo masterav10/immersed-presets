@@ -60,6 +60,7 @@ public class DecklinkHelper extends decklink
      */
     public static class IDecklinkBase extends IUnknown
     {
+        /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
         public IDecklinkBase(Pointer p)
         {
             super(p);
@@ -120,6 +121,9 @@ public class DecklinkHelper extends decklink
         private final GUID iid;
         private int refCount = 1;
 
+        /**
+         * Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}.
+         */
         public IDecklinkCallback(Pointer p)
         {
             super(p);
