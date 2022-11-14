@@ -14,10 +14,23 @@ import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacpp.annotation.Properties;
 import org.bytedeco.systems.windows.GUID;
 
+/**
+ * This is a helper class for generating the decklink bindings.
+ * 
+ * @author Dan Avila
+ * @see    https://github.com/bytedeco/javacpp/wiki/Mapping-Recipes#writing-additional-code-in-a-helper-class
+ */
 public class DecklinkHelper extends decklink
 {
     private static final Map<Class<?>, GUID> GUID_CACHE = new HashMap<>();
 
+    /**
+     * An implementation of a decklink callback. This class implements the querying
+     * and reference handling so the client can simply focus on extending the
+     * intended functionality.
+     * 
+     * @author Dan Avila
+     */
     public static class IUnknownCallback extends IUnknown
     {
         private final GUID iid;
