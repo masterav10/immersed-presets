@@ -60,13 +60,13 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     public DeckLinkDevice(IDeckLink device)
     {
         this.m_deckLink = device;
-        this.m_deckLinkInput = find(device, IDeckLinkInput.class);
+        this.m_deckLinkInput = device.find(IDeckLinkInput.class);
 
-        this.m_deckLinkOutput = find(device, IDeckLinkOutput.class);
+        this.m_deckLinkOutput = device.find(IDeckLinkOutput.class);
         this.m_deckLinkConverter = create(IDeckLinkVideoConversion.class);
 
-        this.m_deckLinkConfig = find(device, IDeckLinkConfiguration.class);
-        this.m_deckLinkHDMIInputEDID = find(device, IDeckLinkHDMIInputEDID.class);
+        this.m_deckLinkConfig = device.find(IDeckLinkConfiguration.class);
+        this.m_deckLinkHDMIInputEDID = device.find(IDeckLinkHDMIInputEDID.class);
 
         if (m_deckLinkInput == null || m_deckLinkInput.isNull())
         {
@@ -76,7 +76,7 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
 
     public boolean init()
     {
-        IDeckLinkProfileAttributes deckLinkAttributes = find(m_deckLink, IDeckLinkProfileAttributes.class);
+        IDeckLinkProfileAttributes deckLinkAttributes = m_deckLink.find(IDeckLinkProfileAttributes.class);
 
         if (deckLinkAttributes == null || deckLinkAttributes.isNull())
             return false;
