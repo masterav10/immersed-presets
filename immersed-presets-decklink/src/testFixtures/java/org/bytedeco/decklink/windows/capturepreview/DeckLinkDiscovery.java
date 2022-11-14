@@ -9,8 +9,6 @@ import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkDeviceNotificationCallback;
 import org.bytedeco.decklink.IDeckLinkDiscovery;
 import org.bytedeco.decklink.windows.IUnknownSupport;
-import org.bytedeco.javacpp.PointerPointer;
-import org.bytedeco.systems.windows.GUID;
 
 /**
  * This class will automatically listen for decklink devices and broadcast them.
@@ -79,23 +77,4 @@ public class DeckLinkDiscovery extends IDeckLinkDeviceNotificationCallback
         if (m_deckLinkDiscovery != null && !m_deckLinkDiscovery.isNull())
             m_deckLinkDiscovery.UninstallDeviceNotifications();
     }
-
-    @Override
-    public long QueryInterface(GUID riid, PointerPointer ppv)
-    {
-        return m_com.QueryInterface(riid, ppv);
-    }
-
-    @Override
-    public long AddRef()
-    {
-        return m_com.AddRef();
-    }
-
-    @Override
-    public long Release()
-    {
-        return m_com.Release();
-    }
-
 }

@@ -21,18 +21,16 @@ import org.bytedeco.decklink.IDeckLinkProfileAttributes;
 import org.bytedeco.decklink.IDeckLinkVideoConversion;
 import org.bytedeco.decklink.IDeckLinkVideoFrame;
 import org.bytedeco.decklink.IDeckLinkVideoInputFrame;
-import org.bytedeco.decklink.windows.IUnknownSupport;
 import org.bytedeco.decklink.windows.Utility;
 import org.bytedeco.javacpp.CharPointer;
 import org.bytedeco.javacpp.PointerPointer;
-import org.bytedeco.systems.windows.GUID;
 
 /**
  * A wrapper around a device available in an attached frame pool.
  * 
  * @author Dan Avila
- * @see DeckLinkDevice.cpp
- * @see DeckLinkDevice.h
+ * @see    DeckLinkDevice.cpp
+ * @see    DeckLinkDevice.h
  *
  */
 public class DeckLinkDevice extends IDeckLinkInputCallback
@@ -59,8 +57,6 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
     private boolean m_applyDetectedInputMode = false;
     private String m_deviceName = null;
 
-    private final IUnknownSupport com = IUnknownSupport.create(this);
-
     public DeckLinkDevice(IDeckLink device)
     {
         this.m_deckLink = device;
@@ -76,24 +72,6 @@ public class DeckLinkDevice extends IDeckLinkInputCallback
         {
             throw new IllegalArgumentException("DeckLink device does not have an input interface.");
         }
-    }
-
-    @Override
-    public long QueryInterface(GUID iid, PointerPointer ppv)
-    {
-        return com.QueryInterface(iid, ppv);
-    }
-
-    @Override
-    public long AddRef()
-    {
-        return com.AddRef();
-    }
-
-    @Override
-    public long Release()
-    {
-        return com.Release();
     }
 
     public boolean init()

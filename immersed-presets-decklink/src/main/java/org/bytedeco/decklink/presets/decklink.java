@@ -24,6 +24,7 @@ import org.bytedeco.windows.presets.windef;
         names = {"windows-x86_64"}, 
         target = "org.bytedeco.decklink", 
         global = "org.bytedeco.global.decklink",
+        helper = "DecklinkHelper",
         value = {
             @Platform(
                 include = {
@@ -79,7 +80,7 @@ public class decklink implements InfoMapper, LoadEnabled
                              "IDeckLinkInputCallback_v7_3","IDeckLinkInputCallback_v7_6","IDeckLinkNotificationCallback","IDeckLinkProfileCallback",
                              "IDeckLinkScreenPreviewCallback","IDeckLinkScreenPreviewCallback_v7_6","IDeckLinkVideoOutputCallback",
                              "IDeckLinkVideoOutputCallback_v7_1","IDeckLinkVideoOutputCallback_v7_6")
-                .purify(false).virtualize());
+                .purify(false).virtualize().base("IUnknownCallback"));
     }
 
     @Override
