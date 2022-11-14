@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import org.bytedeco.decklink.IDeckLink;
 import org.bytedeco.decklink.IDeckLinkDeviceNotificationCallback;
 import org.bytedeco.decklink.IDeckLinkDiscovery;
-import org.bytedeco.decklink.windows.IUnknownSupport;
 
 /**
  * This class will automatically listen for decklink devices and broadcast them.
@@ -18,7 +17,6 @@ import org.bytedeco.decklink.windows.IUnknownSupport;
  */
 public class DeckLinkDiscovery extends IDeckLinkDeviceNotificationCallback
 {
-    private final IUnknownSupport m_com = IUnknownSupport.create(this);
     private final IDeckLinkDiscovery m_deckLinkDiscovery;
     private Consumer<IDeckLink> m_deckLinkArrivedCallback;
     private Consumer<IDeckLink> m_deckLinkRemovedCallback;
