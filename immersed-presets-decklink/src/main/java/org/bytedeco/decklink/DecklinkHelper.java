@@ -24,6 +24,92 @@ public class DecklinkHelper extends decklink
 {
     private static final Map<Class<?>, GUID> GUID_CACHE = new HashMap<>();
 
+    private static final GUID lookupGuid(Class<?> type)
+    {
+        if (GUID_CACHE.containsKey(type))
+        {
+            return GUID_CACHE.get(type);
+        }
+
+        try
+        {
+            Class<?> settings = decklink.class;
+            Properties props = settings.getAnnotation(Properties.class);
+            String global = props.global();
+            Class<?> decklink = Class.forName(global);
+
+            String name = "IID_" + type.getSimpleName();
+            Method method = decklink.getMethod(name);
+
+            GUID value = (GUID) method.invoke(null);
+            GUID_CACHE.put(type, value);
+            return value;
+
+        }
+        catch (Exception e)
+        {
+            throw new IllegalStateException(e);
+        }
+
+    }
+
+    /**
+     * Default subclass to be used by decklink com objects. Provides a quick lookup
+     * function with automatic IID detection.
+     * 
+     * @author Dan Avila
+     *
+     */
+    public static class IDecklinkBase extends IUnknown
+    {
+        public IDecklinkBase(Pointer p)
+        {
+            super(p);
+        }
+
+        /**
+         * Gets a sub-object via the base's QueryInterface method.
+         * 
+         * @param  <T>  the type of object we are querying.
+         * @param  base the object holding the subtype
+         * @param  type the class for the subtype
+         * @return      the object we are querying for, or null if that object could not
+         *              be found.
+         */
+        public <T extends Pointer> T find(Class<T> type)
+        {
+            final GUID iid = DecklinkHelper.lookupGuid(type);
+
+            try (PointerPointer<T> pointer = new PointerPointer<>(1L))
+            {
+                if (QueryInterface(iid, pointer) == S_OK)
+                {
+                    return pointer.get(type);
+                }
+
+                return null;
+            }
+        }
+
+        @Override
+        public long AddRef()
+        {
+            return super.AddRef();
+        }
+
+        @Override
+        public long Release()
+        {
+            return super.Release();
+        }
+
+        @Override
+        public long QueryInterface(GUID riid, PointerPointer ppv)
+        {
+            return super.QueryInterface(riid, ppv);
+        }
+    }
+
     /**
      * An implementation of a decklink callback. This class implements the querying
      * and reference handling so the client can simply focus on extending the
@@ -31,43 +117,16 @@ public class DecklinkHelper extends decklink
      * 
      * @author Dan Avila
      */
-    public static class IUnknownCallback extends IUnknown
+    public static class IDecklinkCallback extends IDecklinkBase
     {
         private final GUID iid;
         private int refCount = 1;
 
-        public IUnknownCallback(Pointer p)
+        public IDecklinkCallback(Pointer p)
         {
             super(p);
 
-            Class<?> settings = decklink.class;
-            Properties props = settings.getAnnotation(Properties.class);
-            String global = props.global();
-
-            try
-            {
-                Class<?> decklink = Class.forName(global);
-                Class<?> parent = getClass().getSuperclass();
-
-                this.iid = GUID_CACHE.computeIfAbsent(parent, t ->
-                {
-                    try
-                    {
-                        String name = "IID_" + parent.getSimpleName();
-                        Method method = decklink.getMethod(name);
-                        return (GUID) method.invoke(null);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new IllegalStateException(e);
-                    }
-
-                });
-            }
-            catch (ClassNotFoundException | SecurityException | IllegalArgumentException e)
-            {
-                throw new IllegalStateException(e);
-            }
+            this.iid = lookupGuid(getClass().getSuperclass());
         }
 
         @Override
