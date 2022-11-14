@@ -133,6 +133,18 @@ public class decklink implements InfoMapper, LoadEnabled
                                                .base("IDecklinkCallback"));
     }
 
+    /**
+     * Populates the provided info map with COM objects. A utility superclass was
+     * created to improve usability.
+     * 
+     * <p>
+     * The contents of this method are automatically generated. Regenerate the
+     * bindings using gradle and then run InfoMapHelper in the test fixtures.
+     * </p>
+     * 
+     * @param infoMap the map we are populating.
+     * @see           IDecklinkCallback
+     */
     void commObjects(InfoMap infoMap)
     {
         infoMap.put(new Info("IBMDStreamingAudioPacket", "IBMDStreamingDeviceInput",
