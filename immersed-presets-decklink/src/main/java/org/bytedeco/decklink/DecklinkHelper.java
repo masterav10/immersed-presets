@@ -44,13 +44,11 @@ public class DecklinkHelper extends decklink
             GUID value = (GUID) method.invoke(null);
             GUID_CACHE.put(type, value);
             return value;
-
         }
         catch (Exception e)
         {
             throw new IllegalStateException(e);
         }
-
     }
 
     /**
