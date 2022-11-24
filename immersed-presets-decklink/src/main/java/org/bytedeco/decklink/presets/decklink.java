@@ -30,9 +30,6 @@ import org.bytedeco.windows.presets.windef;
             @Platform(
                 include = {
                     "DeckLinkAPI_h.h", "DeckLinkAPI_i.c", "com.h", "windows-com.cpp"
-                },
-                define={
-                     "NO_JNI_DETACH_THREAD", "JNI_ATTACH_AS_DAEMON"
                 }
             )
         }
