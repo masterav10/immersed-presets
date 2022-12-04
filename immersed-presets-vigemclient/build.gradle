@@ -7,9 +7,10 @@ ext {
 	libPlatform = "x64"
 	libProject = "ViGEmClient"
 	libSln = "${libProject}.sln"
+	libConfigOutput = "debug"
 }
 
-def libConfigs = ["Release_DLL"]
+def libConfigs = ["Debug_DLL"]
 
 version "$vigemVersion-$javacppPresetVersion"
 
@@ -62,6 +63,11 @@ task upgradeNativeLib(type:Exec, dependsOn: unzipNativeLib) {
 				"/Upgrade"
 }
 
+task copyNativeDll(type: Copy) {
+	from "${libHome}/bin/${libConfigOutput}/${libPlatform}/${libProject}.dll"
+	into "${sourceSets.javacpp.resources.srcDirs[0]}/${javacppPlatform}"
+}
+
 for(String config : libConfigs)
 {
 	def taskPrefix = "compileNative"
@@ -77,12 +83,13 @@ for(String config : libConfigs)
 	}
 
 	tasks["${taskPrefix}${config}"].dependsOn upgradeNativeLib
-	javacppGenerate.dependsOn tasks["${taskPrefix}${config}"]
+	copyNativeDll.dependsOn tasks["${taskPrefix}${config}"]
 }
 
+javacppGenerate.dependsOn copyNativeDll
 javacppGenerate {
 	systemProperties['nativelib.src'] = "${libHome}/include;${libHome}/src"
-	systemProperties["nativelib.bin.Release_DLL"] = "${libHome}/bin/release/${libPlatform}"
+	systemProperties["nativelib.bin.${libConfigs[0]}"] = "${libHome}/bin/${libConfigOutput}/${libPlatform}"
 	
 	debug = false
 }

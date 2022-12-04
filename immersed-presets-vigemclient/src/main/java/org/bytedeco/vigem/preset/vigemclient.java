@@ -40,16 +40,20 @@ public class vigemclient implements InfoMapper, LoadEnabled
     @Override
     public void init(ClassProperties properties)
     {
-        final String[] srcs = System.getProperty("nativelib.src")
-                                    .split(";");
+        final String prop = System.getProperty("nativelib.src");
 
-        List<String> includePaths = properties.get("platform.includepath");
-
-        for (String src : srcs)
+        if (prop != null)
         {
-            if (!includePaths.contains(src))
+            final String[] srcs = prop.split(";");
+
+            List<String> includePaths = properties.get("platform.includepath");
+
+            for (String src : srcs)
             {
-                includePaths.add(src);
+                if (!includePaths.contains(src))
+                {
+                    includePaths.add(src);
+                }
             }
         }
 
@@ -76,13 +80,16 @@ public class vigemclient implements InfoMapper, LoadEnabled
     public void map(InfoMap infoMap)
     {
         infoMap.put(new Info("VIGEM_API").cppTypes())
-               .put(new Info("VIGEM_DEPRECATED").annotations("@Deprecated").cppTypes())
-               .put(new Info("_I8_MIN", "_I8_MAX", "_UI8_MAX", "_I16_MIN", "_I16_MAX", "_UI16_MAX", 
-                             "_I32_MIN", "_I32_MAX", "_UI32_MAX", 
-                             "DEVICE_IO_CONTROL_END", "DEVICE_IO_CONTROL_BEGIN").skip())
-               .put(new Info("PVIGEM_TARGET").cast().valueTypes("PointerPointer<VIGEM_TARGET>"))
-               .put(new Info("PVIGEM_CLIENT").cast().valueTypes("PointerPointer<VIGEM_CLIENT>"))
-               .put(new Info("VIGEM_ERROR").cast().valueTypes("int"))
+               .put(new Info("VIGEM_DEPRECATED").annotations("@Deprecated")
+                                                .cppTypes())
+               .put(new Info("_I8_MIN", "_I8_MAX", "_UI8_MAX", "_I16_MIN", "_I16_MAX", "_UI16_MAX", "_I32_MIN",
+                       "_I32_MAX", "_UI32_MAX", "DEVICE_IO_CONTROL_END", "DEVICE_IO_CONTROL_BEGIN").skip())
+               .put(new Info("PVIGEM_TARGET").cast()
+                                             .valueTypes("PointerPointer<VIGEM_TARGET>"))
+               .put(new Info("PVIGEM_CLIENT").cast()
+                                             .valueTypes("PointerPointer<VIGEM_CLIENT>"))
+               .put(new Info("VIGEM_ERROR").cast()
+                                           .valueTypes("int"))
                .put(new Info("VIGEM_TARGET_TYPE", "VIGEM_TARGET_STATE", "_VIGEM_ERRORS", "VIGEM_ERROR").enumerate());
     }
 
