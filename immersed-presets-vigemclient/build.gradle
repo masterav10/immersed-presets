@@ -1,0 +1,97 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+ext {
+	libHome = "${buildDir}/unpacked/dist/ViGEmClient-$vigemVersion"
+	libPlatform = "x64"
+	libProject = "ViGEmClient"
+	libSln = "${libProject}.sln"
+}
+
+def libConfigs = ["Release_DLL"]
+
+version "$vigemVersion-$javacppPresetVersion"
+
+repositories {
+    ivy {
+        url 'https://github.com/'
+
+		// v1.21.222.0
+		// https://github.com/ViGEm/ViGEmClient/archive/refs/tags/v1.21.222.0.zip
+        patternLayout {
+            artifact '/[organisation]/[module]/archive/refs/tags/v[revision].[ext]'
+        }
+
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+}
+
+configurations {
+	zip
+}
+
+dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+	
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
+	
+	zip "ViGEm:ViGEmClient:$vigemVersion@zip"
+}
+
+
+task unzipNativeLib(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("${libProject}") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${buildDir}/unpacked/dist")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+
+task upgradeNativeLib(type:Exec, dependsOn: unzipNativeLib) {
+	workingDir "$libHome"
+
+	commandLine "devenv", 
+				"${libHome}/${libSln}",
+				"/Upgrade"
+}
+
+for(String config : libConfigs)
+{
+	def taskPrefix = "compileNative"
+
+	tasks.register("${taskPrefix}${config}", Exec) {
+		workingDir "$libHome"
+	
+		commandLine "msbuild", 
+					"${libHome}/${libSln}",
+					"-t:${libProject}",
+					"-p:Configuration=${config}",
+					"-p:Platform=${libPlatform}"
+	}
+
+	tasks["${taskPrefix}${config}"].dependsOn upgradeNativeLib
+	javacppGenerate.dependsOn tasks["${taskPrefix}${config}"]
+}
+
+javacppGenerate {
+	systemProperties['nativelib.src'] = "${libHome}/include;${libHome}/src"
+	systemProperties["nativelib.bin.Release_DLL"] = "${libHome}/bin/release/${libPlatform}"
+	
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+
+	doFirst {
+		args "-nodelete"
+		args "-Xcompiler", "/Z7"
+	}
+}
