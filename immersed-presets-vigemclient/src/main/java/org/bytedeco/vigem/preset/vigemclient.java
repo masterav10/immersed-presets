@@ -11,11 +11,12 @@ import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
 import org.bytedeco.systems.presets.windows;
+import org.bytedeco.xinput.preset.xinput;
 
 //@formatter:off
 @Properties(
       inherit = {
-          windows.class,
+          windows.class, xinput.class
       },
       names = {"windows-x86_64"}, 
       target = "org.bytedeco.vigemclient", 
