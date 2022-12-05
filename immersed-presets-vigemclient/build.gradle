@@ -41,6 +41,9 @@ dependencies {
 	api "org.bytedeco:systems:$javacppPresetVersion"
 	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
 	
+	api "org.bytedeco.presets:immersed-presets-windows:$javacppVersion"
+    runtimeOnly "org.bytedeco.presets:immersed-presets-windows:$javacppVersion:$javacppPlatform"
+	
 	zip "ViGEm:ViGEmClient:$vigemVersion@zip"
 }
 
