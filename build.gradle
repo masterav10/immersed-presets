@@ -34,6 +34,8 @@ subprojects {
 		testFixturesApi 'org.junit.jupiter:junit-jupiter'
 		testFixturesApi 'org.assertj:assertj-core'
 		testFixturesApi 'org.mockito:mockito-core'
+		testFixturesApi 'org.slf4j:slf4j-api'
+		
 		testImplementation "org.slf4j:slf4j-simple"	
 	}
 	

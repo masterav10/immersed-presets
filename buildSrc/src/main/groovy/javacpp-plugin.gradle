@@ -1,5 +1,6 @@
 plugins {
 	id 'java-library'
+	id 'java-test-fixtures'
 	id 'maven-publish'
 }
 
@@ -35,6 +36,11 @@ sourceSets {
 	}
 	
 	test {
+		compileClasspath += sourceSets.javacpp.output
+        runtimeClasspath += sourceSets.javacpp.output
+	}
+	
+	testFixtures {
 		compileClasspath += sourceSets.javacpp.output
         runtimeClasspath += sourceSets.javacpp.output
 	}

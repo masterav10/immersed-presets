@@ -4,13 +4,6 @@ plugins {
 
 version "$decklinkPresetsVersion-$javacppVersion"
 
-sourceSets {	
-	testFixtures {
-		compileClasspath += sourceSets.javacpp.output
-        runtimeClasspath += sourceSets.javacpp.output
-	}
-}
-
 dependencies {
 	api "org.bytedeco.presets:immersed-presets-windows:$javacppVersion"
     runtimeOnly "org.bytedeco.presets:immersed-presets-windows:$javacppVersion:$javacppPlatform"
