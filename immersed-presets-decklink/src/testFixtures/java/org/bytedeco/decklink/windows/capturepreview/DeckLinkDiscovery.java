@@ -1,6 +1,6 @@
 package org.bytedeco.decklink.windows.capturepreview;
 
-import static org.bytedeco.decklink.windows.ComSupport.*;
+import static org.bytedeco.decklink.util.ComSupport.*;
 import static org.bytedeco.global.windef.*;
 
 import java.util.function.Consumer;

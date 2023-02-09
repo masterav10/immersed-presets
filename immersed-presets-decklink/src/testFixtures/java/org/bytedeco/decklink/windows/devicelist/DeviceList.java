@@ -1,6 +1,6 @@
 package org.bytedeco.decklink.windows.devicelist;
 
-import static org.bytedeco.decklink.windows.ComSupport.*;
+import static org.bytedeco.decklink.util.ComSupport.*;
 import static org.bytedeco.decklink.windows.Utility.*;
 import static org.bytedeco.global.com.*;
 import static org.bytedeco.global.decklink.*;

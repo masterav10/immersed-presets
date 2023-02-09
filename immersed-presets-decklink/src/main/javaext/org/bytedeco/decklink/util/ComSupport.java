@@ -1,4 +1,4 @@
-package org.bytedeco.decklink.windows;
+package org.bytedeco.decklink.util;
 
 import static org.bytedeco.global.windef.*;
 
