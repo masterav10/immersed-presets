@@ -1,6 +1,6 @@
 package org.bytedeco.vigem;
 
-import static org.bytedeco.vigem.preset.vigemclient.*;
+import static org.bytedeco.vigem.preset.vigemspec.*;
 import static org.bytedeco.vigemclient.global.vigemclient.*;
 
 import java.util.concurrent.TimeUnit;
@@ -8,12 +8,10 @@ import java.util.concurrent.locks.LockSupport;
 
 import org.bytedeco.global.windef;
 import org.bytedeco.javacpp.PointerPointer;
-import org.bytedeco.systems.global.windows;
+import org.bytedeco.vigemclient.DS4_REPORT;
 import org.bytedeco.vigemclient.VIGEM_CLIENT;
 import org.bytedeco.vigemclient.VIGEM_TARGET;
-import org.bytedeco.vigemclient.XUSB_REPORT;
 import org.bytedeco.xinput.XINPUT_CAPABILITIES;
-import org.bytedeco.xinput.XINPUT_STATE;
 import org.bytedeco.xinput.global.xinput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,14 +47,14 @@ public class ReadmeSample
 
         check(vigem_connect(client));
 
-        PointerPointer<VIGEM_TARGET> pad = vigem_target_x360_alloc();
+        PointerPointer<VIGEM_TARGET> pad = vigem_target_ds4_alloc();
         check(vigem_target_add(client, pad));
 
         LOG.info("Continue.");
 
-        XUSB_REPORT report = new XUSB_REPORT();
+        DS4_REPORT report = new DS4_REPORT();
 
-        short value = xinput.XINPUT_GAMEPAD_A;
+        short value = xinput.XINPUT_GAMEPAD_DPAD_RIGHT;
         report.wButtons(value);
 
         long start = System.nanoTime();
@@ -67,7 +65,7 @@ public class ReadmeSample
             long sec = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
             report.wButtons(sec % 2 == 0 ? value : 0);
 
-            check(vigem_target_x360_update(client, pad, report));
+            check(vigem_target_ds4_update(client, pad, report));
 
             LockSupport.parkNanos(TimeUnit.MICROSECONDS.toNanos(50L));
         }
