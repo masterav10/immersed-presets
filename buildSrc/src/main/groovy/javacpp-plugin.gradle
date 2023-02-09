@@ -35,20 +35,32 @@ sourceSets {
 		}
 	}
 	
+	javaext {
+		java {
+    		srcDirs = ["${projectDir}/src/main/javaext"]
+    	}
+	}
+	
 	test {
 		compileClasspath += sourceSets.javacpp.output
         runtimeClasspath += sourceSets.javacpp.output
+       	compileClasspath += sourceSets.javaext.output
+        runtimeClasspath += sourceSets.javaext.output
 	}
 	
 	testFixtures {
 		compileClasspath += sourceSets.javacpp.output
         runtimeClasspath += sourceSets.javacpp.output
+        compileClasspath += sourceSets.javaext.output
+        runtimeClasspath += sourceSets.javaext.output
 	}
 }
 
 configurations {
     javacppImplementation.extendsFrom implementation
     javacppRuntimeOnly.extendsFrom runtimeOnly
+    javaextImplementation.extendsFrom implementation
+    javaextRuntimeOnly.extendsFrom runtimeOnly
 }
 
 task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
