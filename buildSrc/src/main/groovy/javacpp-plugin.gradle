@@ -36,6 +36,10 @@ sourceSets {
 	}
 	
 	javaext {
+		compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+		compileClasspath += sourceSets.javacpp.output
+        runtimeClasspath += sourceSets.javacpp.output
 		java {
     		srcDirs = ["${projectDir}/src/main/javaext"]
     	}
@@ -59,8 +63,8 @@ sourceSets {
 configurations {
     javacppImplementation.extendsFrom implementation
     javacppRuntimeOnly.extendsFrom runtimeOnly
-    javaextImplementation.extendsFrom implementation
-    javaextRuntimeOnly.extendsFrom runtimeOnly
+    javaextImplementation.extendsFrom javacppImplementation
+    javaextRuntimeOnly.extendsFrom javacppRuntimeOnly
 }
 
 task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
@@ -152,10 +156,11 @@ task javacppNativeJar(type: Jar){
 	from sourceSets.javacpp.resources
 }
 
-jar.dependsOn javacppJniGenerate, javacppNativeJar
+jar.dependsOn javacppJniGenerate, javacppNativeJar, compileJavaextJava
 
 jar {
 	from sourceSets.javacpp.java.outputDir
+	from sourceSets.javaext.java.outputDir
 }
 
 java {
@@ -165,6 +170,7 @@ java {
 
 sourcesJar {
 	from sourceSets.javacpp.java
+	from sourceSets.javaext.java
 }
 
 javadoc {

@@ -13,7 +13,6 @@ import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 import org.bytedeco.javacpp.annotation.Properties;
 import org.bytedeco.systems.windows.GUID;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Provides utility functions for creating or querying COM objects.
@@ -60,7 +59,7 @@ public class ComSupport
         {
             final boolean noParams = method.getParameterCount() == 0;
             final boolean returnsGuid = GUID.class.equals(method.getReturnType());
-            
+
             final String name = method.getName();
             final boolean isCLSID = name.startsWith("CLSID_C");
 
@@ -72,7 +71,6 @@ public class ComSupport
 
                 try
                 {
-                    final Object guid = ReflectionUtils.invokeMethod(method, null);
                     final Class<?> type = Class.forName(className);
                     final Method getter = ReflectionUtils.findMethod(decklink.class, methodName, PointerPointer.class);
 
@@ -89,11 +87,11 @@ public class ComSupport
     /**
      * Gets a sub-object via the base's QueryInterface method.
      * 
-     * @param <T>  the type of object we are querying.
-     * @param base the object holding the subtype
-     * @param type the class for the subtype
-     * @return the object we are querying for, or null if that object could not be
-     *         found.
+     * @param  <T>  the type of object we are querying.
+     * @param  base the object holding the subtype
+     * @param  type the class for the subtype
+     * @return      the object we are querying for, or null if that object could not
+     *              be found.
      */
     public static <T extends Pointer> T find(IUnknown base, Class<T> type)
     {
@@ -114,9 +112,9 @@ public class ComSupport
      * Creates a new COM object using
      * {@link com#CoCreateInstance(GUID, PointerPointer, int, GUID, PointerPointer)}.
      * 
-     * @param <T>  the type of object we wish to create.
-     * @param type the class representing the type.
-     * @return a reference to the loaded object.
+     * @param  <T>  the type of object we wish to create.
+     * @param  type the class representing the type.
+     * @return      a reference to the loaded object.
      */
     public static <T extends Pointer> T create(Class<T> type)
     {
