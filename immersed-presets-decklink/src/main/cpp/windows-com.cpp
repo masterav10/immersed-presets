@@ -77,3 +77,9 @@ HRESULT GetDeckLinkAPIInformation(IDeckLinkAPIInformation** deckLinkAPIInformati
 	InitializeCom();
 	return CoCreateInstance(CLSID_CDeckLinkAPIInformation, NULL, CLSCTX_ALL, IID_IDeckLinkAPIInformation, (void**)deckLinkAPIInformation);
 }
+
+HRESULT GetDeckLinkWPFDX9ScreenPreviewHelper(IDeckLinkWPFDX9ScreenPreviewHelper** deckLinkWPFDX9ScreenPreviewHelper)
+{
+	InitializeCom();
+	return CoCreateInstance(CLSID_CDeckLinkWPFDX9ScreenPreviewHelper, NULL, CLSCTX_ALL, IID_IDeckLinkWPFDX9ScreenPreviewHelper, (void**)deckLinkWPFDX9ScreenPreviewHelper);
+}
