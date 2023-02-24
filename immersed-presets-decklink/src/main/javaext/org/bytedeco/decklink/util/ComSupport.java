@@ -80,6 +80,10 @@ public class ComSupport
                 {
                     // skip, no associated class
                 }
+                catch (IllegalArgumentException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
     }
