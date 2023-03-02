@@ -2,6 +2,7 @@ package org.bytedeco.decklink.windows.capturepreview;
 
 import java.net.URL;
 
+import org.bytedeco.decklink.common.DeckLinkDiscovery;
 import org.bytedeco.global.decklink;
 
 import javafx.application.Application;

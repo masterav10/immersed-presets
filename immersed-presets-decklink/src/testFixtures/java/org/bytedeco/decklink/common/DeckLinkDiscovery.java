@@ -1,4 +1,4 @@
-package org.bytedeco.decklink.windows.capturepreview;
+package org.bytedeco.decklink.common;
 
 import static org.bytedeco.decklink.util.ComSupport.*;
 import static org.bytedeco.global.windef.*;
