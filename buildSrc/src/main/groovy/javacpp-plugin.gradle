@@ -181,6 +181,12 @@ javadoc {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "buildDir"
+            url = "${rootDir}/build/maven"
+        }
+	}
     publications {
         mavenJava(MavenPublication) {
             from components.java
