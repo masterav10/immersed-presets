@@ -171,6 +171,7 @@ java {
 sourcesJar {
 	from sourceSets.javacpp.java
 	from sourceSets.javaext.java
+	from sourceSets.testFixtures.java
 }
 
 javadoc {
