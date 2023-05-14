@@ -2,7 +2,7 @@ package org.bytedeco.cuda.cub;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Set;
 
 import org.inferred.freebuilder.FreeBuilder;
 
@@ -31,5 +31,5 @@ public interface HeaderDefinition
 
     Path location();
 
-    List<FunctionDefinition> functions();
+    Set<FunctionDefinition> functions();
 }
