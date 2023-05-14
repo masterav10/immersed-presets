@@ -16,6 +16,7 @@ public interface FunctionDefinition
 
             String clean = definition.replace("CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED", "");
             clean = clean.replace("CUB_RUNTIME_FUNCTION", "");
+            clean = clean.replace("__forceinline__", "");
             clean = clean.replaceAll("\\s{2,}", " ");
 
             String templates = clean.substring(clean.indexOf("<") + 1, clean.indexOf(">"));
