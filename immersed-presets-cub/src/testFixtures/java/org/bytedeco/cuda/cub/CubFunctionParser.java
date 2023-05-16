@@ -7,7 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bytedeco.cuda.presets.cudart;
@@ -56,7 +58,11 @@ public class CubFunctionParser
 
         // print includes for cub.h
         out.println("// include in org.bytedeco.cuda.cub @Properties include");
-        headers.forEach(header -> out.println(header.includeName(includeDir)));
+
+        headers.stream()
+               .map(header -> header.includeName(includeDir))
+               .reduce((a, b) -> String.join(",\n", a, b))
+               .ifPresent(out::println);
 
         out.println();
         out.println("// include in org.bytedeco.cuda.cub.presets.cub#map");
@@ -74,13 +80,15 @@ public class CubFunctionParser
 
         CubTemplates templates = new CubTemplates();
 
+        final Set<String> ignoreFunctions = new HashSet<>(Arrays.asList("cub::DeviceHistogram::MultiHistogramEven"));
+        ignoreFunctions.add("cub::DeviceHistogram::MultiHistogramEven");
+        
         headers.forEach(header ->
         {
-            out.println();
-
             String name = header.getFileName();
             String method = name.substring(0, name.lastIndexOf('.'));
 
+            out.println();
             out.format("private static void %s(InfoMap infoMap)", method)
                .println();
             out.print("{");
@@ -96,7 +104,8 @@ public class CubFunctionParser
                 templates.walk(functionObj)
                          .forEach(result ->
                          {
-                             out.format("    %s", result);
+                             String output = result.toString();
+                             out.format("    %s", output);
                              out.println();
                          });
             }
@@ -122,7 +131,7 @@ public class CubFunctionParser
 
             if (line.startsWith("struct"))
             {
-                defBuilder.name(line.substring(7));
+                defBuilder.struct(line.substring(7));
             }
 
             if (line.equals("private:"))

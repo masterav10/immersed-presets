@@ -20,7 +20,8 @@ import org.bytedeco.cuda.cub.MultiListIndexIterator.Result;
  */
 public class MultiListIndexIterator implements Iterator<Result>
 {
-    private static final Set<String> IGNORE_METHODS = new HashSet<>(Arrays.asList("ArgMin", "ArgMax"));
+    private static final Set<String> IGNORE_METHODS = new HashSet<>(
+            Arrays.asList("ArgMin", "ArgMax", "MultiHistogramEven", "MultiHistogramRange"));
 
     public static final class Result
     {
@@ -44,7 +45,7 @@ public class MultiListIndexIterator implements Iterator<Result>
                                                            .stream()
                                                            .anyMatch(template -> newDefinition.contains(template));
 
-            if (anyTemplateUnresolved || IGNORE_METHODS.contains(newFunctionName))
+            if (anyTemplateUnresolved || IGNORE_METHODS.contains(this.definition.name()))
             {
                 builder.append("// ");
             }

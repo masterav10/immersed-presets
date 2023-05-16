@@ -14,10 +14,7 @@ public interface FunctionDefinition
         {
             this.clearTemplates();
 
-            String clean = definition.replace("CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED", "");
-            clean = clean.replace("CUB_RUNTIME_FUNCTION", "");
-            clean = clean.replace("__forceinline__", "");
-            clean = clean.replaceAll("\\s{2,}", " ");
+            String clean = definition.replaceAll("\\s{2,}", " ");
 
             String templates = clean.substring(clean.indexOf("<") + 1, clean.indexOf(">"));
             String[] templateArray = templates.split(",");
@@ -34,7 +31,7 @@ public interface FunctionDefinition
             String function = clean.substring(clean.indexOf(">") + 2, clean.indexOf("("));
             String[] parts = function.split(" ");
 
-            this.name(parts[2]);
+            this.name(parts[parts.length - 1]);
 
             return this;
         }
