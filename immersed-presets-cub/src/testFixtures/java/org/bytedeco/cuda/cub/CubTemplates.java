@@ -79,6 +79,8 @@ public class CubTemplates
         add(OffsetsOutputIteratorT());
         add(OffsetIteratorT());
         add(ValueT());
+        add(CounterT());
+        add(IteratorT());
     }
 
     private TemplateResolver EndOffsetIteratorT()
@@ -162,6 +164,13 @@ public class CubTemplates
     {
         return byReplacement().template("FlagIterator")
                               .addReplacements("char*")
+                              .build();
+    }
+
+    private static TemplateResolver IteratorT()
+    {
+        return byReplacement().template("IteratorT")
+                              .addReplacements(asPointers(VALUE_TYPES))
                               .build();
     }
 
