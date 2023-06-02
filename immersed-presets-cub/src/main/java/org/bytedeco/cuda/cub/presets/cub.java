@@ -17,7 +17,6 @@ import org.bytedeco.javacpp.tools.InfoMapper;
         value = {
             @Platform(
                 include = {
-                    "<cub/cub.cuh>",
                     "<cub/device/device_adjacent_difference.cuh>",
                     "<cub/device/device_histogram.cuh>",
                     "<cub/device/device_merge_sort.cuh>",
@@ -42,6 +41,8 @@ public class cub implements InfoMapper
     @Override
     public void map(InfoMap infoMap)
     {   
+        infoMap.put(new Info(".*template.*", "CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED",
+                             "CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED", "").skip());
         infoMap.put(new Info("CUB_NAMESPACE_BEGIN").cppText("#define CUB_NAMESPACE_BEGIN namespace cub {").cppTypes());
         infoMap.put(new Info("CUB_NAMESPACE_END").cppText("#define CUB_NAMESPACE_END }").cppTypes());
         
@@ -90,14 +91,14 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceHistogram::HistogramEven<int*,unsigned int,int,int>").javaNames("HistogramEven"));
 
         // cub::DeviceHistogram::MultiHistogramEven<NUM_CHANNELS,NUM_ACTIVE_CHANNELS,SampleIteratorT,CounterT,LevelT,OffsetT>
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<1,1,float*,unsigned int,float,int>").javaNames("MultiHistogramEven1Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<2,2,float*,unsigned int,float,int>").javaNames("MultiHistogramEven2Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<3,3,float*,unsigned int,float,int>").javaNames("MultiHistogramEven3Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<4,4,float*,unsigned int,float,int>").javaNames("MultiHistogramEven4Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<1,1,int*,unsigned int,int,int>").javaNames("MultiHistogramEven1Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<2,2,int*,unsigned int,int,int>").javaNames("MultiHistogramEven2Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<3,3,int*,unsigned int,int,int>").javaNames("MultiHistogramEven3Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<4,4,int*,unsigned int,int,int>").javaNames("MultiHistogramEven4Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<1,1,float*,unsigned int,float,int>").javaNames("MultiHistogramEven1Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<2,2,float*,unsigned int,float,int>").javaNames("MultiHistogramEven2Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<3,3,float*,unsigned int,float,int>").javaNames("MultiHistogramEven3Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<4,4,float*,unsigned int,float,int>").javaNames("MultiHistogramEven4Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<1,1,int*,unsigned int,int,int>").javaNames("MultiHistogramEven1Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<2,2,int*,unsigned int,int,int>").javaNames("MultiHistogramEven2Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<3,3,int*,unsigned int,int,int>").javaNames("MultiHistogramEven3Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramEven<4,4,int*,unsigned int,int,int>").javaNames("MultiHistogramEven4Channel"));
 
         // cub::DeviceHistogram::HistogramRange<SampleIteratorT,CounterT,LevelT,OffsetT>
         infoMap.put(new Info("cub::DeviceHistogram::HistogramRange<float*,unsigned int,float,int>").javaNames("HistogramRange"));
@@ -217,30 +218,40 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceScan::ExclusiveSum<int*,int*>").javaNames("ExclusiveSum"));
 
         // cub::DeviceScan::ExclusiveSum<IteratorT>
+        //infoMap.put(new Info("cub::DeviceScan::ExclusiveSum<float*>").javaNames("ExclusiveSum"));
+        //infoMap.put(new Info("cub::DeviceScan::ExclusiveSum<int*>").javaNames("ExclusiveSum"));
 
         // cub::DeviceScan::ExclusiveScan<InputIteratorT,OutputIteratorT,ScanOpT,InitValueT>
         // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<float*,float*,ScanOpT,InitValueT>").javaNames("ExclusiveScan"));
         // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<int*,int*,ScanOpT,InitValueT>").javaNames("ExclusiveScan"));
 
         // cub::DeviceScan::ExclusiveScan<IteratorT,ScanOpT,InitValueT>
+        // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<float*,ScanOpT,InitValueT>").javaNames("ExclusiveScan"));
+        // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<int*,ScanOpT,InitValueT>").javaNames("ExclusiveScan"));
 
         // cub::DeviceScan::ExclusiveScan<InputIteratorT,OutputIteratorT,ScanOpT,InitValueT,InitValueIterT>
         // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<float*,float*,ScanOpT,InitValueT,InitValueIterT>").javaNames("ExclusiveScan"));
         // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<int*,int*,ScanOpT,InitValueT,InitValueIterT>").javaNames("ExclusiveScan"));
 
         // cub::DeviceScan::ExclusiveScan<IteratorT,ScanOpT,InitValueT,InitValueIterT>
+        // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<float*,ScanOpT,InitValueT,InitValueIterT>").javaNames("ExclusiveScan"));
+        // infoMap.put(new Info("cub::DeviceScan::ExclusiveScan<int*,ScanOpT,InitValueT,InitValueIterT>").javaNames("ExclusiveScan"));
 
         // cub::DeviceScan::InclusiveSum<InputIteratorT,OutputIteratorT>
         infoMap.put(new Info("cub::DeviceScan::InclusiveSum<float*,float*>").javaNames("InclusiveSum"));
         infoMap.put(new Info("cub::DeviceScan::InclusiveSum<int*,int*>").javaNames("InclusiveSum"));
 
         // cub::DeviceScan::InclusiveSum<IteratorT>
+        //infoMap.put(new Info("cub::DeviceScan::InclusiveSum<float*>").javaNames("InclusiveSum"));
+        //infoMap.put(new Info("cub::DeviceScan::InclusiveSum<int*>").javaNames("InclusiveSum"));
 
         // cub::DeviceScan::InclusiveScan<InputIteratorT,OutputIteratorT,ScanOpT>
         // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<float*,float*,ScanOpT>").javaNames("InclusiveScan"));
         // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<int*,int*,ScanOpT>").javaNames("InclusiveScan"));
 
         // cub::DeviceScan::InclusiveScan<IteratorT,ScanOpT>
+        // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<float*,ScanOpT>").javaNames("InclusiveScan"));
+        // infoMap.put(new Info("cub::DeviceScan::InclusiveScan<int*,ScanOpT>").javaNames("InclusiveScan"));
 
         // cub::DeviceScan::ExclusiveSumByKey<KeysInputIteratorT,ValuesInputIteratorT,ValuesOutputIteratorT,EqualityOpT>
 
@@ -339,14 +350,16 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceSelect::Flagged<int*,char*,int*,int*>").javaNames("Flagged"));
 
         // cub::DeviceSelect::Flagged<IteratorT,FlagIterator,NumSelectedIteratorT>
-        // infoMap.put(new Info("cub::DeviceSelect::Flagged<IteratorT,char*,int*>").javaNames("Flagged"));
+        //infoMap.put(new Info("cub::DeviceSelect::Flagged<float*,char*,int*>").javaNames("Flagged"));
+        //infoMap.put(new Info("cub::DeviceSelect::Flagged<int*,char*,int*>").javaNames("Flagged"));
 
         // cub::DeviceSelect::If<InputIteratorT,OutputIteratorT,NumSelectedIteratorT,SelectOp>
         // infoMap.put(new Info("cub::DeviceSelect::If<float*,float*,int*,SelectOp>").javaNames("If"));
         // infoMap.put(new Info("cub::DeviceSelect::If<int*,int*,int*,SelectOp>").javaNames("If"));
 
         // cub::DeviceSelect::If<IteratorT,NumSelectedIteratorT,SelectOp>
-        // infoMap.put(new Info("cub::DeviceSelect::If<IteratorT,int*,SelectOp>").javaNames("If"));
+        // infoMap.put(new Info("cub::DeviceSelect::If<float*,int*,SelectOp>").javaNames("If"));
+        // infoMap.put(new Info("cub::DeviceSelect::If<int*,int*,SelectOp>").javaNames("If"));
 
         // cub::DeviceSelect::Unique<InputIteratorT,OutputIteratorT,NumSelectedIteratorT>
         infoMap.put(new Info("cub::DeviceSelect::Unique<float*,float*,int*>").javaNames("Unique"));
