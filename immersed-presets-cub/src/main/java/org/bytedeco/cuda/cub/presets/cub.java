@@ -105,14 +105,14 @@ public class cub implements InfoMapper
         infoMap.put(new Info("cub::DeviceHistogram::HistogramRange<int*,unsigned int,int,int>").javaNames("HistogramRange"));
 
         // cub::DeviceHistogram::MultiHistogramRange<NUM_CHANNELS,NUM_ACTIVE_CHANNELS,SampleIteratorT,CounterT,LevelT,OffsetT>
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<1,1,float*,unsigned int,float,int>").javaNames("MultiHistogramRange1Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<2,2,float*,unsigned int,float,int>").javaNames("MultiHistogramRange2Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<3,3,float*,unsigned int,float,int>").javaNames("MultiHistogramRange3Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<4,4,float*,unsigned int,float,int>").javaNames("MultiHistogramRange4Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<1,1,int*,unsigned int,int,int>").javaNames("MultiHistogramRange1Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<2,2,int*,unsigned int,int,int>").javaNames("MultiHistogramRange2Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<3,3,int*,unsigned int,int,int>").javaNames("MultiHistogramRange3Channel"));
-        // infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<4,4,int*,unsigned int,int,int>").javaNames("MultiHistogramRange4Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<1,1,float*,unsigned int,float,int>").javaNames("MultiHistogramRange1Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<2,2,float*,unsigned int,float,int>").javaNames("MultiHistogramRange2Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<3,3,float*,unsigned int,float,int>").javaNames("MultiHistogramRange3Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<4,4,float*,unsigned int,float,int>").javaNames("MultiHistogramRange4Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<1,1,int*,unsigned int,int,int>").javaNames("MultiHistogramRange1Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<2,2,int*,unsigned int,int,int>").javaNames("MultiHistogramRange2Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<3,3,int*,unsigned int,int,int>").javaNames("MultiHistogramRange3Channel"));
+        infoMap.put(new Info("cub::DeviceHistogram::MultiHistogramRange<4,4,int*,unsigned int,int,int>").javaNames("MultiHistogramRange4Channel"));
     }
 
     private static void device_merge_sort(InfoMap infoMap)
@@ -154,20 +154,20 @@ public class cub implements InfoMapper
     private static void device_radix_sort(InfoMap infoMap)
     {
         // cub::DeviceRadixSort::SortPairs<KeyT,ValueT,NumItemsT>
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortPairs<float,float,NumItemsT>").javaNames("SortPairs"));
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortPairs<int,int,NumItemsT>").javaNames("SortPairs"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortPairs<float,float,unsigned int>").javaNames("SortPairs"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortPairs<int,int,unsigned int>").javaNames("SortPairs"));
 
         // cub::DeviceRadixSort::SortPairsDescending<KeyT,ValueT,NumItemsT>
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortPairsDescending<float,float,NumItemsT>").javaNames("SortPairsDescending"));
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortPairsDescending<int,int,NumItemsT>").javaNames("SortPairsDescending"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortPairsDescending<float,float,unsigned int>").javaNames("SortPairsDescending"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortPairsDescending<int,int,unsigned int>").javaNames("SortPairsDescending"));
 
         // cub::DeviceRadixSort::SortKeys<KeyT,NumItemsT>
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortKeys<float,NumItemsT>").javaNames("SortKeys"));
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortKeys<int,NumItemsT>").javaNames("SortKeys"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortKeys<float,unsigned int>").javaNames("SortKeys"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortKeys<int,unsigned int>").javaNames("SortKeys"));
 
         // cub::DeviceRadixSort::SortKeysDescending<KeyT,NumItemsT>
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortKeysDescending<float,NumItemsT>").javaNames("SortKeysDescending"));
-        // infoMap.put(new Info("cub::DeviceRadixSort::SortKeysDescending<int,NumItemsT>").javaNames("SortKeysDescending"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortKeysDescending<float,unsigned int>").javaNames("SortKeysDescending"));
+        infoMap.put(new Info("cub::DeviceRadixSort::SortKeysDescending<int,unsigned int>").javaNames("SortKeysDescending"));
     }
 
     private static void device_reduce(InfoMap infoMap)

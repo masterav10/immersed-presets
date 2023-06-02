@@ -81,6 +81,14 @@ public class CubTemplates
         add(ValueT());
         add(CounterT());
         add(IteratorT());
+        add(NumItemsT());
+    }
+
+    private TemplateResolver NumItemsT()
+    {
+        return byReplacement().template("NumItemsT")
+                              .addReplacements(COUNTER_TYPES)
+                              .build();
     }
 
     private TemplateResolver EndOffsetIteratorT()
