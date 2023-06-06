@@ -1,4 +1,4 @@
-package org.bytedeco.cuda.cub;
+package org.immersed.tempgen;
 
 import java.io.File;
 import java.nio.file.Path;

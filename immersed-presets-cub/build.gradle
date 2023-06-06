@@ -1,6 +1,5 @@
 plugins {
 	id 'javacpp-plugin'
-	id 'org.inferred.processors' version '3.3.0'
 }
 
 version "$cudaPresetsVersion-$javacppPresetVersion"
@@ -15,8 +14,7 @@ dependencies {
 	api "org.bytedeco:systems:$javacppPresetVersion"
 	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
 	
-	annotationProcessor 'org.inferred:freebuilder:2.8.0'
-	compileOnly 'org.inferred:freebuilder:2.8.0'
+	testFixturesImplementation project(":immersed-presets-template-generator")
 }
 
 javacppGenerate {

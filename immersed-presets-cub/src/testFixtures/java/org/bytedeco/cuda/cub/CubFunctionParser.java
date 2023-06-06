@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import org.bytedeco.cuda.presets.cudart;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
+import org.immersed.tempgen.FunctionDefinition;
+import org.immersed.tempgen.HeaderDefinition;
 
 public class CubFunctionParser
 {

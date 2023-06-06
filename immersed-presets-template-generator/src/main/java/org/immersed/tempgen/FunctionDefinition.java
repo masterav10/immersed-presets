@@ -10,7 +10,31 @@ public interface FunctionDefinition
 {
     class Builder extends FunctionDefinition_Builder
     {
+        public Builder fromTextSignature(String definition)
+        {
+            this.clearTemplates();
 
+            String clean = definition.replaceAll("\\s{2,}", " ");
+
+            String templates = clean.substring(clean.indexOf("<") + 1, clean.indexOf(">"));
+            String[] templateArray = templates.split(",");
+
+            for (String templateString : templateArray)
+            {
+                templateString = templateString.trim();
+
+                String[] templateStringArray = templateString.split(" ");
+
+                this.addTemplates(templateStringArray[1]);
+            }
+
+            String function = clean.substring(clean.indexOf(">") + 2, clean.indexOf("("));
+            String[] parts = function.split(" ");
+
+            this.name(parts[parts.length - 1]);
+
+            return this;
+        }
     }
 
     Optional<String> namespace();

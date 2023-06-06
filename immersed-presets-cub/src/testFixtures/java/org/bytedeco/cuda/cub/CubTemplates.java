@@ -5,7 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bytedeco.cuda.cub.MultiListIndexIterator.Result;
+import org.immersed.tempgen.FunctionDefinition;
+import org.immersed.tempgen.MultiListIndexIterator;
+import org.immersed.tempgen.MultiListIndexIterator.Result;
+import org.immersed.tempgen.PrefixSuffix;
+import org.immersed.tempgen.TemplateResolver;
+import org.immersed.tempgen.TemplateResolverAggregator;
+import org.immersed.tempgen.TemplateResolverByReplacement;
 
 public class CubTemplates
 {
