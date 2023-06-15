@@ -182,6 +182,10 @@ javadoc {
     failOnError=false
 }
 
+artifacts {
+    runtimeElements(javacppNativeJar)
+}
+
 publishing {
     repositories {
         maven {
@@ -192,7 +196,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact source: javacppNativeJar, classifier: "${javacppPlatform}", extension: "jar"
             versionMapping {
                 usage('java-runtime') {
                     fromResolutionResult()
