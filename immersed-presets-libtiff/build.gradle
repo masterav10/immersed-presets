@@ -1,0 +1,95 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+ext {
+	libTiffHome = "${buildDir}/unpacked/dist/libtiff-v$libtiffVersion"
+	libTiffPlatform = "x64"
+}
+
+def libTiffConfig = ["Release"]
+
+version "$libtiffVersion-$javacppPresetVersion"
+
+repositories {
+    ivy {
+        url 'https://gitlab.com/'
+
+		// https://gitlab.com/libtiff/libtiff/-/archive/v4.6.0/libtiff-v4.6.0.zip
+        patternLayout {
+            artifact '/[organisation]/[module]/-/archive/v[revision]/[module]-v[revision].[ext]'
+        }
+
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+}
+
+configurations {
+	zip
+}
+
+dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+	
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
+	
+	zip "libtiff:libtiff:$libtiffVersion@zip"
+}
+
+
+task unzipLibTiff(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libtiff") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${buildDir}/unpacked/dist")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+
+task cmakeLibTiff(type:Exec, dependsOn: unzipLibTiff) {
+	workingDir "$libTiffHome"
+
+	println "$libTiffHome"
+	commandLine "cmake", "."
+}
+
+for(String config : libTiffConfig)
+{
+	tasks.register("compileLibTiff${config}", Exec) {
+		workingDir "$libTiffHome"
+	
+		commandLine "msbuild", 
+					"${libTiffHome}/tiff.sln",
+					"-t:ALL_BUILD",
+					"-p:Configuration=${config}",
+					"-p:Platform=${libTiffPlatform}"
+	}
+
+	tasks["compileLibTiff${config}"].dependsOn cmakeLibTiff
+	javacppGenerate.dependsOn tasks["compileLibTiff${config}"]
+}
+
+javacppGenerate {
+	systemProperties['libtiff.src'] = "${libTiffHome}/libtiff"
+	
+	for(String config : libTiffConfig)
+	{
+		systemProperties["libtiff.bin.${config}"] = "${libTiffHome}/libtiff/${config}"
+	}
+	
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+
+	doFirst {
+		args "-nodelete"
+		args "-Xcompiler", "/Z7"
+	}
+}
