@@ -62,7 +62,7 @@ tasks.named('wrapper') {
 		
 		// location of compiler to use
 		def vcvarsall = Paths.get("C:","Program Files (x86)","Microsoft Visual Studio",
-		                      "2019","Community","VC","Auxiliary","Build","vcvars64.bat");
+		                      "2019","Community","VC","Auxiliary","Build","vcvarsall.bat");
 	
 		for(int i = 0; i < lines.size(); i++) {
 			if(lines[i].contains("@echo off")) {
