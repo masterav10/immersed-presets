@@ -5,6 +5,9 @@ plugins {
 ext {
 	libTiffHome = "${buildDir}/unpacked/dist/libtiff-v$libtiffVersion"
 	libTiffPlatform = "x64"
+	
+	libJpegHome = "${buildDir}/unpacked/dist/jpeg-9e"
+	libJpegTurboHome = "${buildDir}/unpacked/dist/libjpeg-turbo-3.0.0"
 }
 
 def libTiffConfig = ["Release"]
@@ -26,13 +29,13 @@ repositories {
     }
     
     ivy {
-        url 'https://www.ijg.org/files/'
-
-		// https://www.ijg.org/files/jpegsr9e.zip
+    	url 'https://github.com/'
+    	
+    	// libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.0.0.zip
         patternLayout {
-            artifact '/[module].[ext]'
+            artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
         }
-
+        
         // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
         // is mandatory. Docs linked below this code section
         metadataSources { artifact() } 
@@ -51,29 +54,31 @@ dependencies {
 	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
 	
 	zip "libtiff:libtiff:$libtiffVersion@zip"
-	zip "jpegsr9e:jpegsr9e@zip"
+	zip "libjpeg-turbo:libjpeg-turbo:3.0.0@zip"
 }
 
-task unzipLibJpeg(type: Copy) {
-	def zipPath = project.configurations.zip.find {it.name.startsWith("jpeg") }
+task unzipLibJpegTurbo(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libjpeg-turbo") }
 	def zipFile = file(zipPath)
 	def outputDir = file("${buildDir}/unpacked/dist")
 	
 	from zipTree(zipFile)
 	into outputDir
-	
-	rename '(.*)jconfig[.]vc', '$1jconfig.h'
-	rename '(.*)makefile[.]vc', '$1Makefile'
 }
 
-task compileLibJpeg(type:Exec, dependsOn: unzipLibJpeg) {
-	workingDir "${buildDir}/unpacked/dist/jpeg-9e"
-	environment('INCLUDE', "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v7.1A\\Include;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\ucrt;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\include")
-	commandLine "nmake"
+task generateLibJpegTurboProjects(type:Exec, dependsOn: unzipLibJpegTurbo) {
+	workingDir "${libJpegTurboHome}"
+	println "-G\"NMake Makefiles\""
 	
-	doFirst {
-		println "${environment['Path']}"
-	}
+	commandLine "cmake", 
+				"-G", "\"NMake Makefiles\"",
+				"-D", "CMAKE_BUILD_TYPE=Release",
+				"."
+}
+
+task compileLibJpegTurbo(type:Exec, dependsOn: generateLibJpegTurboProjects) {
+	workingDir "${libJpegTurboHome}"
+	commandLine "nmake"
 }
 
 task unzipLibTiff(type: Copy) {
@@ -85,14 +90,19 @@ task unzipLibTiff(type: Copy) {
 	into outputDir
 }
 
-task cmakeLibTiff(type:Exec, dependsOn: [unzipLibTiff, compileLibJpeg]) {
+task cmakeLibTiff(type:Exec, dependsOn: [unzipLibTiff, compileLibJpegTurbo]) {
 	workingDir "$libTiffHome"
 
-	def jpegLibDir = "${buildDir}/unpacked/dist/jpeg-9e".replace("\\", "/")
+	def jpegIncDir = "${libJpegTurboHome}".replace("\\", "/")
+	def jpegBinaryDir = "${jpegIncDir}/Release/x64"
 
 	commandLine "cmake",
 				"-D", "jpeg=ON",
-	            "-D", "JPEG_LIBRARY=${jpegLibDir}",
+	            "-D", "JPEG_INCLUDE_DIR=${jpegIncDir}",
+	            "-D", "JPEG_LIBRARY=${jpegBinaryDir}",
+	            "-D", "jpeg12=ON",
+	          	"-D", "JPEG12_INCLUDE_DIR=${jpegIncDir}",
+	          	"-D", "JPEG12_LIBRARY=${jpegBinaryDir}",
 	            "."
 }
 
