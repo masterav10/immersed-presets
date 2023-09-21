@@ -24,6 +24,19 @@ repositories {
         // is mandatory. Docs linked below this code section
         metadataSources { artifact() } 
     }
+    
+    ivy {
+        url 'https://www.ijg.org/files/'
+
+		// https://www.ijg.org/files/jpegsr9e.zip
+        patternLayout {
+            artifact '/[module].[ext]'
+        }
+
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
 }
 
 configurations {
@@ -38,8 +51,30 @@ dependencies {
 	implementation "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
 	
 	zip "libtiff:libtiff:$libtiffVersion@zip"
+	zip "jpegsr9e:jpegsr9e@zip"
 }
 
+task unzipLibJpeg(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("jpeg") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${buildDir}/unpacked/dist")
+	
+	from zipTree(zipFile)
+	into outputDir
+	
+	rename '(.*)jconfig[.]vc', '$1jconfig.h'
+	rename '(.*)makefile[.]vc', '$1Makefile'
+}
+
+task compileLibJpeg(type:Exec, dependsOn: unzipLibJpeg) {
+	workingDir "${buildDir}/unpacked/dist/jpeg-9e"
+	environment('INCLUDE', "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v7.1A\\Include;C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\ucrt;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\include")
+	commandLine "nmake"
+	
+	doFirst {
+		println "${environment['Path']}"
+	}
+}
 
 task unzipLibTiff(type: Copy) {
 	def zipPath = project.configurations.zip.find {it.name.startsWith("libtiff") }
@@ -50,12 +85,15 @@ task unzipLibTiff(type: Copy) {
 	into outputDir
 }
 
-
-task cmakeLibTiff(type:Exec, dependsOn: unzipLibTiff) {
+task cmakeLibTiff(type:Exec, dependsOn: [unzipLibTiff, compileLibJpeg]) {
 	workingDir "$libTiffHome"
 
-	println "$libTiffHome"
-	commandLine "cmake", "."
+	def jpegLibDir = "${buildDir}/unpacked/dist/jpeg-9e".replace("\\", "/")
+
+	commandLine "cmake",
+				"-D", "jpeg=ON",
+	            "-D", "JPEG_LIBRARY=${jpegLibDir}",
+	            "."
 }
 
 for(String config : libTiffConfig)
