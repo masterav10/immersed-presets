@@ -3,14 +3,15 @@ plugins {
 }
 
 ext {
-	libTiffHome = "${buildDir}/unpacked/dist/libtiff-v$libtiffVersion"
-	libTiffPlatform = "x64"
+	vcPlatform = "x64"
+	vcConfig = "Release"
 	
-	libJpegHome = "${buildDir}/unpacked/dist/jpeg-9e"
+	libTiffHome = "${buildDir}/unpacked/dist/libtiff-v$libtiffVersion"
 	libJpegTurboHome = "${buildDir}/unpacked/dist/libjpeg-turbo-3.0.0"
+	libDeflateHome = "${buildDir}/unpacked/dist/libdeflate"
+	zlibHome = "${buildDir}/unpacked/dist/zlib-1.3"
+	jBigHome = "${buildDir}/unpacked/dist/jbigkit-2.1/libjbig"
 }
-
-def libTiffConfig = ["Release"]
 
 version "$libtiffVersion-$javacppPresetVersion"
 
@@ -40,6 +41,46 @@ repositories {
         // is mandatory. Docs linked below this code section
         metadataSources { artifact() } 
     }
+    
+    ivy {
+    	url 'https://github.com/'
+    	
+    	// madler/zlib/releases/download/v1.3/zlib13.zip
+        patternLayout {
+            artifact '/[organisation]/[module]/releases/download/v[revision]/zlib13.[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+    
+	ivy {
+    	url 'https://github.com/'
+    	
+    	// ebiggers/libdeflate/releases/download/v1.19/libdeflate-1.19-windows-x86_64-bin.zip
+        patternLayout {
+            artifact '/ebiggers/[organisation]/releases/download/v[revision]/libdeflate-[revision]-windows-x86_64-bin.[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+   
+    
+    ivy {
+    	url 'https://www.cl.cam.ac.uk/'
+    	
+    	// ~mgk25/jbigkit/download/jbigkit-2.1.tar.gz
+        patternLayout {
+            artifact '/~mgk25/[organisation]/download/[module]-[revision].[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
 }
 
 configurations {
@@ -55,6 +96,9 @@ dependencies {
 	
 	zip "libtiff:libtiff:$libtiffVersion@zip"
 	zip "libjpeg-turbo:libjpeg-turbo:3.0.0@zip"
+	zip "madler:zlib:1.3@zip"
+	zip "libdeflate:libdeflate:1.19@zip"
+	zip "jbigkit:jbigkit:2.1@tar.gz"
 }
 
 task unzipLibJpegTurbo(type: Copy) {
@@ -68,17 +112,81 @@ task unzipLibJpegTurbo(type: Copy) {
 
 task generateLibJpegTurboProjects(type:Exec, dependsOn: unzipLibJpegTurbo) {
 	workingDir "${libJpegTurboHome}"
-	println "-G\"NMake Makefiles\""
 	
 	commandLine "cmake", 
 				"-G", "\"NMake Makefiles\"",
-				"-D", "CMAKE_BUILD_TYPE=Release",
+				"-D", "CMAKE_BUILD_TYPE=${vcConfig}",
 				"."
 }
 
 task compileLibJpegTurbo(type:Exec, dependsOn: generateLibJpegTurboProjects) {
 	workingDir "${libJpegTurboHome}"
 	commandLine "nmake"
+}
+
+task unzipZlib(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("zlib") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${buildDir}/unpacked/dist")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task generateZlibProjects(type:Exec, dependsOn: unzipZlib) {
+	workingDir "${zlibHome}"
+	
+	commandLine "cmake", 
+				"."
+}
+
+task compileZlib(type:Exec, dependsOn: generateZlibProjects) {
+	workingDir "${zlibHome}"
+
+	commandLine "msbuild", 
+				"${zlibHome}/zlib.sln",
+				"-t:ALL_BUILD",
+				"-p:Configuration=${vcConfig}",
+				"-p:Platform=${vcPlatform}"
+}
+
+task unzipLibDeflate(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libdeflate") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${libDeflateHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task unzipJBig(type: Copy) {
+	def tarPath = project.configurations.zip.find {it.name.startsWith("jbigkit") }
+	def tarFile = file(tarPath)
+	def outputDir = file("${buildDir}/unpacked/dist")
+	
+	from tarTree(tarFile)
+	into outputDir
+}
+
+task compileJBig(type:Exec, dependsOn: unzipJBig) {
+	workingDir "${jBigHome}"
+
+	// derived using visual studio
+	commandLine "cl.exe",
+				"/c", "/Zi", "/nologo", "/W3", "/WX-", "/diagnostics:column", "/sdl", "/O2", "/Oi", 
+				"/GL", "/D NDEBUG", "/D _LIB", "/D _UNICODE", "/D UNICODE", "/Gm-", "/EHsc", "/MD", 
+				"/GS", "/Gy", "/fp:precise", "/permissive-", "/Zc:wchar_t", "/Zc:forScope", "/Zc:inline", 
+				"/Fd\"LIBJBIG.PDB\"", "/external:W3", "/Gd", "/TC", "/FC", 
+				"JBIG.C", "JBIG_AR.C"
+}
+
+task buildJBigLibrary(type:Exec, dependsOn: compileJBig) {
+	workingDir "${jBigHome}"
+
+	// derived using visual studio
+	commandLine "lib.exe",
+				"/OUT:\"libjbig.lib\"", "/NOLOGO", "/MACHINE:X64", "/LTCG", 
+				"JBIG.OBJ", "JBIG_AR.OBJ"
 }
 
 task unzipLibTiff(type: Copy) {
@@ -90,45 +198,40 @@ task unzipLibTiff(type: Copy) {
 	into outputDir
 }
 
-task cmakeLibTiff(type:Exec, dependsOn: [unzipLibTiff, compileLibJpegTurbo]) {
+task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, unzipLibDeflate, buildJBigLibrary, compileLibJpegTurbo]) {
 	workingDir "$libTiffHome"
 
-	def jpegIncDir = "${libJpegTurboHome}".replace("\\", "/")
-	def jpegBinaryDir = "${jpegIncDir}/Release/x64"
+	def zlibBin = "${zlibHome}".replace("\\", "/")
+	def libDeflate = "${libDeflateHome}".replace("\\", "/")
+ 	def jpegIncDir = "${libJpegTurboHome}".replace("\\", "/")
+	def jBigDir ="${jBigHome}".replace("\\", "/")
 
 	commandLine "cmake",
-				"-D", "jpeg=ON",
+				"-D", "ZLIB_LIBRARY=${zlibBin}/${vcConfig}/zlib.lib",
+				"-D", "ZLIB_INCLUDE_DIR=${zlibBin}",
+				"-D", "Deflate_LIBRARY=${libDeflate}/libdeflate.a",
+				"-D", "Deflate_INCLUDE_DIR=${libDeflate}",
 	            "-D", "JPEG_INCLUDE_DIR=${jpegIncDir}",
-	            "-D", "JPEG_LIBRARY=${jpegBinaryDir}",
-	            "-D", "jpeg12=ON",
-	          	"-D", "JPEG12_INCLUDE_DIR=${jpegIncDir}",
-	          	"-D", "JPEG12_LIBRARY=${jpegBinaryDir}",
+	            "-D", "JPEG_LIBRARY=${jpegIncDir}/jpeg.lib",
+	          	"-D", "JBIG_INCLUDE_DIR=${jBigDir}",
+	        	"-D", "JBIG_LIBRARY=${jBigDir}/libjbig.lib",
 	            "."
 }
 
-for(String config : libTiffConfig)
-{
-	tasks.register("compileLibTiff${config}", Exec) {
-		workingDir "$libTiffHome"
-	
-		commandLine "msbuild", 
-					"${libTiffHome}/tiff.sln",
-					"-t:ALL_BUILD",
-					"-p:Configuration=${config}",
-					"-p:Platform=${libTiffPlatform}"
-	}
+task compileLibTiff(type:Exec, dependsOn: generateLibTiffProjects) {
+	workingDir "$libTiffHome"
 
-	tasks["compileLibTiff${config}"].dependsOn cmakeLibTiff
-	javacppGenerate.dependsOn tasks["compileLibTiff${config}"]
+	commandLine "msbuild", 
+				"${libTiffHome}/tiff.sln",
+				"-t:ALL_BUILD",
+				"-p:Configuration=${vcConfig}",
+				"-p:Platform=${vcPlatform}"
+	javacppGenerate.dependsOn name
 }
 
 javacppGenerate {
 	systemProperties['libtiff.src'] = "${libTiffHome}/libtiff"
-	
-	for(String config : libTiffConfig)
-	{
-		systemProperties["libtiff.bin.${config}"] = "${libTiffHome}/libtiff/${config}"
-	}
+	systemProperties["libtiff.bin.${vcConfig}"] = "${libTiffHome}/libtiff/${vcConfig}"
 	
 	debug = false
 }
