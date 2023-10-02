@@ -6,11 +6,14 @@ ext {
 	vcPlatform = "x64"
 	vcConfig = "Release"
 	
-	libTiffHome = "${buildDir}/unpacked/dist/libtiff-v$libtiffVersion"
-	libJpegTurboHome = "${buildDir}/unpacked/dist/libjpeg-turbo-3.0.0"
-	libDeflateHome = "${buildDir}/unpacked/dist/libdeflate"
-	zlibHome = "${buildDir}/unpacked/dist/zlib-1.3"
-	jBigHome = "${buildDir}/unpacked/dist/jbigkit-2.1/libjbig"
+	nativeLibHome = "${buildDir}/unpacked/dist"
+	libTiffHome = "${nativeLibHome}/libtiff-v$libtiffVersion"
+	libJpegTurboHome = "${nativeLibHome}/libjpeg-turbo-3.0.0"
+	libDeflateHome = "${nativeLibHome}/libdeflate"
+	zlibHome = "${nativeLibHome}/zlib-1.3"
+	jBigHome = "${nativeLibHome}/jbigkit-2.1/libjbig"
+	lercHome = "${nativeLibHome}/lerc-2.2"
+	lzmaHome = "${nativeLibHome}/xz-5.4.4"
 }
 
 version "$libtiffVersion-$javacppPresetVersion"
@@ -81,6 +84,32 @@ repositories {
         // is mandatory. Docs linked below this code section
         metadataSources { artifact() } 
     }
+    
+	ivy {
+    	url 'https://github.com/'
+    	    
+    	// Esri/lerc/archive/refs/tags/v2.2.zip
+        patternLayout {
+            artifact '/Esri/[module]/archive/refs/tags/v[revision].[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+    
+    ivy {
+    	url 'https://github.com/'
+    	    
+    	// tukaani-project/xz/archive/refs/tags/v5.4.4.zip
+        patternLayout {
+            artifact '/[organisation]/[module]/archive/refs/tags/v[revision].[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
 }
 
 configurations {
@@ -99,12 +128,14 @@ dependencies {
 	zip "madler:zlib:1.3@zip"
 	zip "libdeflate:libdeflate:1.19@zip"
 	zip "jbigkit:jbigkit:2.1@tar.gz"
+	zip "lerc:lerc:2.2@zip"
+	zip "tukaani-project:xz:5.4.4@zip"
 }
 
 task unzipLibJpegTurbo(type: Copy) {
 	def zipPath = project.configurations.zip.find {it.name.startsWith("libjpeg-turbo") }
 	def zipFile = file(zipPath)
-	def outputDir = file("${buildDir}/unpacked/dist")
+	def outputDir = file("${nativeLibHome}")
 	
 	from zipTree(zipFile)
 	into outputDir
@@ -127,7 +158,7 @@ task compileLibJpegTurbo(type:Exec, dependsOn: generateLibJpegTurboProjects) {
 task unzipZlib(type: Copy) {
 	def zipPath = project.configurations.zip.find {it.name.startsWith("zlib") }
 	def zipFile = file(zipPath)
-	def outputDir = file("${buildDir}/unpacked/dist")
+	def outputDir = file("${nativeLibHome}")
 	
 	from zipTree(zipFile)
 	into outputDir
@@ -162,7 +193,7 @@ task unzipLibDeflate(type: Copy) {
 task unzipJBig(type: Copy) {
 	def tarPath = project.configurations.zip.find {it.name.startsWith("jbigkit") }
 	def tarFile = file(tarPath)
-	def outputDir = file("${buildDir}/unpacked/dist")
+	def outputDir = file("${nativeLibHome}")
 	
 	from tarTree(tarFile)
 	into outputDir
@@ -189,37 +220,83 @@ task buildJBigLibrary(type:Exec, dependsOn: compileJBig) {
 				"JBIG.OBJ", "JBIG_AR.OBJ"
 }
 
-task unzipLibTiff(type: Copy) {
-	def zipPath = project.configurations.zip.find {it.name.startsWith("libtiff") }
+task unzipLerc(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("lerc") }
 	def zipFile = file(zipPath)
-	def outputDir = file("${buildDir}/unpacked/dist")
+	def outputDir = file("${nativeLibHome}")
 	
 	from zipTree(zipFile)
 	into outputDir
 }
 
-task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, unzipLibDeflate, buildJBigLibrary, compileLibJpegTurbo]) {
+task unzipLibLzma(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("xz") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${nativeLibHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task generateLibLzma(type:Exec, dependsOn: unzipLibLzma) {
+	workingDir "${lzmaHome}"
+	
+	commandLine "cmake", 
+				"-G", "\"NMake Makefiles\"",
+				"-D", "CMAKE_BUILD_TYPE=${vcConfig}",
+				"."
+}
+
+task buildLibLzmaLibrary(type:Exec, dependsOn: generateLibLzma) {
+	workingDir "${lzmaHome}"
+
+	commandLine "msbuild", 
+				"${lzmaHome}/windows/vs2019/xz_win.sln",
+				"-t:liblzma",
+				"-p:Configuration=${vcConfig}",
+				"-p:Platform=${vcPlatform}"
+}
+
+task unzipLibTiff(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libtiff") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${nativeLibHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, unzipLibDeflate, buildJBigLibrary, compileLibJpegTurbo, unzipLerc, buildLibLzmaLibrary]) {
 	workingDir "$libTiffHome"
 
 	def zlibBin = "${zlibHome}".replace("\\", "/")
 	def libDeflate = "${libDeflateHome}".replace("\\", "/")
  	def jpegIncDir = "${libJpegTurboHome}".replace("\\", "/")
 	def jBigDir ="${jBigHome}".replace("\\", "/")
-
+	def lercDir = "${lercHome}".replace("\\", "/")
+	def lzmaDir = "${lzmaHome}".replace("\\", "/")
+	
 	commandLine "cmake",
 				"-D", "ZLIB_LIBRARY=${zlibBin}/${vcConfig}/zlib.lib",
 				"-D", "ZLIB_INCLUDE_DIR=${zlibBin}",
 				"-D", "Deflate_LIBRARY=${libDeflate}/libdeflate.a",
 				"-D", "Deflate_INCLUDE_DIR=${libDeflate}",
-	            "-D", "JPEG_INCLUDE_DIR=${jpegIncDir}",
 	            "-D", "JPEG_LIBRARY=${jpegIncDir}/jpeg.lib",
-	          	"-D", "JBIG_INCLUDE_DIR=${jBigDir}",
+	            "-D", "JPEG_INCLUDE_DIR=${jpegIncDir}",
 	        	"-D", "JBIG_LIBRARY=${jBigDir}/libjbig.lib",
+	          	"-D", "JBIG_INCLUDE_DIR=${jBigDir}",
+	        	"-D", "LERC_LIBRARY=${lercDir}/bin/windows/Lerc.lib",
+	        	"-D", "LERC_INCLUDE_DIR=${lercDir}/src/LercLib",
+	        	"-D", "LIBLZMA_LIBRARY=${lzmaDir}/windows/vs2019/Release/x64/liblzma/liblzma.lib",
+	        	"-D", "LIBLZMA_INCLUDE_DIR=${lzmaDir}/src/liblzma/api",
 	            "."
 }
 
 task compileLibTiff(type:Exec, dependsOn: generateLibTiffProjects) {
 	workingDir "$libTiffHome"
+
+	// need this to use LIBLZMA
+	environment['CL'] = "/DLZMA_API_STATIC"
 
 	commandLine "msbuild", 
 				"${libTiffHome}/tiff.sln",
