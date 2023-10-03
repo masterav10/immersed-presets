@@ -14,6 +14,8 @@ ext {
 	jBigHome = "${nativeLibHome}/jbigkit-2.1/libjbig"
 	lercHome = "${nativeLibHome}/lerc-2.2"
 	lzmaHome = "${nativeLibHome}/xz-5.4.4"
+	zstdHome = "${nativeLibHome}/zstd-1.5.5"
+	webpHome = "${nativeLibHome}/libwebp-1.3.2"
 }
 
 version "$libtiffVersion-$javacppPresetVersion"
@@ -22,7 +24,7 @@ repositories {
     ivy {
         url 'https://gitlab.com/'
 
-		// https://gitlab.com/libtiff/libtiff/-/archive/v4.6.0/libtiff-v4.6.0.zip
+    	// libtiff/libtiff/-/archive/v4.6.0/libtiff-v4.6.0.zip
         patternLayout {
             artifact '/[organisation]/[module]/-/archive/v[revision]/[module]-v[revision].[ext]'
         }
@@ -31,47 +33,7 @@ repositories {
         // is mandatory. Docs linked below this code section
         metadataSources { artifact() } 
     }
-    
-    ivy {
-    	url 'https://github.com/'
-    	
-    	// libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.0.0.zip
-        patternLayout {
-            artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
-        }
-        
-        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
-        // is mandatory. Docs linked below this code section
-        metadataSources { artifact() } 
-    }
-    
-    ivy {
-    	url 'https://github.com/'
-    	
-    	// madler/zlib/releases/download/v1.3/zlib13.zip
-        patternLayout {
-            artifact '/[organisation]/[module]/releases/download/v[revision]/zlib13.[ext]'
-        }
-        
-        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
-        // is mandatory. Docs linked below this code section
-        metadataSources { artifact() } 
-    }
-    
-	ivy {
-    	url 'https://github.com/'
-    	
-    	// ebiggers/libdeflate/releases/download/v1.19/libdeflate-1.19-windows-x86_64-bin.zip
-        patternLayout {
-            artifact '/ebiggers/[organisation]/releases/download/v[revision]/libdeflate-[revision]-windows-x86_64-bin.[ext]'
-        }
-        
-        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
-        // is mandatory. Docs linked below this code section
-        metadataSources { artifact() } 
-    }
-   
-    
+   	    
     ivy {
     	url 'https://www.cl.cam.ac.uk/'
     	
@@ -85,25 +47,26 @@ repositories {
         metadataSources { artifact() } 
     }
     
-	ivy {
-    	url 'https://github.com/'
-    	    
-    	// Esri/lerc/archive/refs/tags/v2.2.zip
-        patternLayout {
-            artifact '/Esri/[module]/archive/refs/tags/v[revision].[ext]'
-        }
-        
-        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
-        // is mandatory. Docs linked below this code section
-        metadataSources { artifact() } 
-    }
-    
     ivy {
     	url 'https://github.com/'
-    	    
-    	// tukaani-project/xz/archive/refs/tags/v5.4.4.zip
+    	
         patternLayout {
-            artifact '/[organisation]/[module]/archive/refs/tags/v[revision].[ext]'
+           	// madler/zlib/releases/download/v1.3/zlib13.zip
+	        artifact '/[organisation]/[module]/releases/download/v[revision]/zlib13.[ext]'
+    		
+    		// ebiggers/libdeflate/releases/download/v1.19/libdeflate-1.19-windows-x86_64-bin.zip
+	        artifact '/ebiggers/[organisation]/releases/download/v[revision]/libdeflate-[revision]-windows-x86_64-bin.[ext]'
+            
+            // Esri/lerc/archive/refs/tags/v2.2.zip
+            artifact '/Esri/[module]/archive/refs/tags/v[revision].[ext]'
+            
+            // libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.0.0.zip
+	        artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
+	        
+	        // tukaani-project/xz/archive/refs/tags/v5.4.4.zip
+    		// facebook/zstd/archive/refs/tags/v1.5.5.zip
+	        // webmproject/libwebp/archive/refs/tags/v1.3.2.zip
+	        artifact '/[organisation]/[module]/archive/refs/tags/v[revision].[ext]'
         }
         
         // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
@@ -130,6 +93,8 @@ dependencies {
 	zip "jbigkit:jbigkit:2.1@tar.gz"
 	zip "lerc:lerc:2.2@zip"
 	zip "tukaani-project:xz:5.4.4@zip"
+	zip "facebook:zstd:1.5.5@zip"
+	zip "webmproject:libwebp:1.3.2@zip"
 }
 
 task unzipLibJpegTurbo(type: Copy) {
@@ -257,6 +222,51 @@ task buildLibLzmaLibrary(type:Exec, dependsOn: generateLibLzma) {
 				"-p:Platform=${vcPlatform}"
 }
 
+task unzipZstd(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("zstd") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${nativeLibHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task generateZstdProjects(type:Exec, dependsOn: unzipZstd) {
+	workingDir "${zstdHome}/build/cmake"
+	
+	commandLine "cmake", 
+				"."
+}
+
+task buildZstdLibrary(type:Exec, dependsOn: generateZstdProjects) {
+	workingDir "${zstdHome}/build/cmake"
+
+	commandLine "msbuild", 
+				"${zstdHome}/build/cmake/zstd.sln",
+				"-t:ALL_BUILD",
+				"-p:Configuration=${vcConfig}",
+				"-p:Platform=${vcPlatform}"
+}
+
+task unzipWebp(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libwebp") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${nativeLibHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task buildWebpLibrary(type:Exec, dependsOn: unzipWebp) {
+	workingDir "${webpHome}"
+	
+	commandLine "nmake", 
+				"/f", "Makefile.vc",
+				"CFG=release-static",
+				"RTLIBCFG=static",
+				"OBJDIR=output"
+}
+
 task unzipLibTiff(type: Copy) {
 	def zipPath = project.configurations.zip.find {it.name.startsWith("libtiff") }
 	def zipFile = file(zipPath)
@@ -266,7 +276,7 @@ task unzipLibTiff(type: Copy) {
 	into outputDir
 }
 
-task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, unzipLibDeflate, buildJBigLibrary, compileLibJpegTurbo, unzipLerc, buildLibLzmaLibrary]) {
+task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, unzipLibDeflate, buildJBigLibrary, compileLibJpegTurbo, unzipLerc, buildLibLzmaLibrary, buildZstdLibrary, buildWebpLibrary]) {
 	workingDir "$libTiffHome"
 
 	def zlibBin = "${zlibHome}".replace("\\", "/")
@@ -275,6 +285,8 @@ task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, u
 	def jBigDir ="${jBigHome}".replace("\\", "/")
 	def lercDir = "${lercHome}".replace("\\", "/")
 	def lzmaDir = "${lzmaHome}".replace("\\", "/")
+	def zstdDir = "${zstdHome}".replace("\\", "/")
+	def webpDir = "${webpHome}".replace("\\", "/")
 	
 	commandLine "cmake",
 				"-D", "ZLIB_LIBRARY=${zlibBin}/${vcConfig}/zlib.lib",
@@ -289,6 +301,10 @@ task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, u
 	        	"-D", "LERC_INCLUDE_DIR=${lercDir}/src/LercLib",
 	        	"-D", "LIBLZMA_LIBRARY=${lzmaDir}/windows/vs2019/Release/x64/liblzma/liblzma.lib",
 	        	"-D", "LIBLZMA_INCLUDE_DIR=${lzmaDir}/src/liblzma/api",
+	        	"-D", "ZSTD_LIBRARY=${zstdDir}/build/cmake/lib/Release/zstd_static.lib",
+	        	"-D", "ZSTD_INCLUDE_DIR=${zstdDir}/lib",
+	        	"-D", "WebP_LIBRARY=${webpDir}/output/release-static/x64/lib/libwebp.lib",
+	        	"-D", "WebP_INCLUDE_DIR=${webpDir}/src",
 	            "."
 }
 
