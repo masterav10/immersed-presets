@@ -9,7 +9,7 @@ ext {
 	nativeLibHome = "${buildDir}/unpacked/dist"
 	libTiffHome = "${nativeLibHome}/libtiff-v$libtiffVersion"
 	libJpegTurboHome = "${nativeLibHome}/libjpeg-turbo-3.0.0"
-	libDeflateHome = "${nativeLibHome}/libdeflate"
+	libDeflateHome = "${nativeLibHome}/libdeflate-1.19"
 	zlibHome = "${nativeLibHome}/zlib-1.3"
 	jBigHome = "${nativeLibHome}/jbigkit-2.1/libjbig"
 	lercHome = "${nativeLibHome}/lerc-2.2"
@@ -54,15 +54,13 @@ repositories {
            	// madler/zlib/releases/download/v1.3/zlib13.zip
 	        artifact '/[organisation]/[module]/releases/download/v[revision]/zlib13.[ext]'
     		
-    		// ebiggers/libdeflate/releases/download/v1.19/libdeflate-1.19-windows-x86_64-bin.zip
-	        artifact '/ebiggers/[organisation]/releases/download/v[revision]/libdeflate-[revision]-windows-x86_64-bin.[ext]'
-            
             // Esri/lerc/archive/refs/tags/v2.2.zip
             artifact '/Esri/[module]/archive/refs/tags/v[revision].[ext]'
             
             // libjpeg-turbo/libjpeg-turbo/archive/refs/tags/3.0.0.zip
 	        artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
 	        
+	        // ebiggers/libdeflate/archive/refs/tags/v1.19.zip
 	        // tukaani-project/xz/archive/refs/tags/v5.4.4.zip
     		// facebook/zstd/archive/refs/tags/v1.5.5.zip
 	        // webmproject/libwebp/archive/refs/tags/v1.3.2.zip
@@ -89,7 +87,7 @@ dependencies {
 	zip "libtiff:libtiff:$libtiffVersion@zip"
 	zip "libjpeg-turbo:libjpeg-turbo:3.0.0@zip"
 	zip "madler:zlib:1.3@zip"
-	zip "libdeflate:libdeflate:1.19@zip"
+	zip "ebiggers:libdeflate:1.19@zip"
 	zip "jbigkit:jbigkit:2.1@tar.gz"
 	zip "lerc:lerc:2.2@zip"
 	zip "tukaani-project:xz:5.4.4@zip"
@@ -149,10 +147,28 @@ task compileZlib(type:Exec, dependsOn: generateZlibProjects) {
 task unzipLibDeflate(type: Copy) {
 	def zipPath = project.configurations.zip.find {it.name.startsWith("libdeflate") }
 	def zipFile = file(zipPath)
-	def outputDir = file("${libDeflateHome}")
+	def outputDir = file("${nativeLibHome}")
 	
 	from zipTree(zipFile)
 	into outputDir
+}
+
+task generateLibDeflate(type:Exec, dependsOn: unzipLibDeflate) {
+	workingDir "${libDeflateHome}"
+	
+	commandLine "cmake", 
+				"-D", "CMAKE_BUILD_TYPE=${vcConfig}",
+				"."
+}
+
+task buildLibDeflateLibrary(type:Exec, dependsOn: generateLibDeflate) {
+	workingDir "${libDeflateHome}"
+
+	commandLine "msbuild", 
+				"${libDeflateHome}/libdeflate.sln",
+				"-t:ALL_BUILD",
+				"-p:Configuration=${vcConfig}",
+				"-p:Platform=${vcPlatform}"
 }
 
 task unzipJBig(type: Copy) {
@@ -276,7 +292,15 @@ task unzipLibTiff(type: Copy) {
 	into outputDir
 }
 
-task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, unzipLibDeflate, buildJBigLibrary, compileLibJpegTurbo, unzipLerc, buildLibLzmaLibrary, buildZstdLibrary, buildWebpLibrary]) {
+task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, 
+                                                    compileZlib, 
+                                                    buildLibDeflateLibrary, 
+                                                    buildJBigLibrary, 
+                                                    compileLibJpegTurbo, 
+                                                    unzipLerc, 
+                                                    buildLibLzmaLibrary, 
+                                                    buildZstdLibrary, 
+                                                    buildWebpLibrary]) {
 	workingDir "$libTiffHome"
 
 	def zlibBin = "${zlibHome}".replace("\\", "/")
@@ -289,11 +313,12 @@ task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff, compileZlib, u
 	def webpDir = "${webpHome}".replace("\\", "/")
 	
 	commandLine "cmake",
-				"-D", "ZLIB_LIBRARY=${zlibBin}/${vcConfig}/zlib.lib",
+				"-D", "BUILD_SHARED_LIBS=OFF",
+				"-D", "ZLIB_LIBRARY=${zlibBin}/${vcConfig}/zlibstatic.lib",
 				"-D", "ZLIB_INCLUDE_DIR=${zlibBin}",
-				"-D", "Deflate_LIBRARY=${libDeflate}/libdeflate.a",
+				"-D", "Deflate_LIBRARY=${libDeflate}/Release/deflatestatic.lib",
 				"-D", "Deflate_INCLUDE_DIR=${libDeflate}",
-	            "-D", "JPEG_LIBRARY=${jpegIncDir}/jpeg.lib",
+	            "-D", "JPEG_LIBRARY=${jpegIncDir}/jpeg-static.lib",
 	            "-D", "JPEG_INCLUDE_DIR=${jpegIncDir}",
 	        	"-D", "JBIG_LIBRARY=${jBigDir}/libjbig.lib",
 	          	"-D", "JBIG_INCLUDE_DIR=${jBigDir}",
@@ -325,6 +350,14 @@ task compileLibTiff(type:Exec, dependsOn: generateLibTiffProjects) {
 javacppGenerate {
 	systemProperties['libtiff.src'] = "${libTiffHome}/libtiff"
 	systemProperties["libtiff.bin.${vcConfig}"] = "${libTiffHome}/libtiff/${vcConfig}"
+	systemProperties["libtiff.bin.zlib"] = "${zlibHome}/${vcConfig}"
+	systemProperties["libtiff.bin.jpeg"] = "${libJpegTurboHome}"
+	systemProperties["libtiff.bin.deflate"] = "${libDeflateHome}/Release"
+	systemProperties["libtiff.bin.jbig"] = "${jBigHome}"
+	systemProperties["libtiff.bin.lerc"] = "${lercHome}/bin/windows"
+	systemProperties["libtiff.bin.lzma"] = "${lzmaHome}/windows/vs2019/Release/x64/liblzma"
+	systemProperties["libtiff.bin.zstd"] = "${zstdHome}/build/cmake/lib/Release"
+	systemProperties["libtiff.bin.webp"] = "${webpHome}/output/release-static/x64/lib"
 	
 	debug = false
 }

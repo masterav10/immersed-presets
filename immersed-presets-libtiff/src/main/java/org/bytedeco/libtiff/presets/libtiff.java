@@ -24,15 +24,14 @@ import org.bytedeco.systems.presets.windows;
           @Platform(
               // "tiffconf.h", "tif_config.h",
               include = {
-                  "t4.h", "tif_dir.h", "tif_fax3.h", 
-                  "tif_hash_set.h", "tif_predict.h", "tiff.h",
-                  "tiffio.h", "tiffiop.h", "tiffvers.h", "uvcode.h"
+                  "tiff.h", "tiffvers.h", "tiffio.h"
               },
               link = {
-                  "tiff", "tiffxx"
+                  "tiff", "tiffxx", "zlibstatic", "jpeg", "deflatestatic", "libjbig", 
+                  "Lerc", "liblzma", "zstd_static", "libwebp"
               },
               define = {
-                  // "_WINSOCKAPI_"
+                  "LOGLUV_PUBLIC 1", "TIFF_DISABLE_DEPRECATED 1"
               }
           )
       }
@@ -42,7 +41,14 @@ public class libtiff implements InfoMapper, LoadEnabled
 {   
     @Override
     public void map(InfoMap infoMap)
-    {   
+    {  
+        infoMap.put(new Info("TIFFPrintMethod").skip(true));
+        
+        infoMap.put(new Info("TIFF_GCC_DEPRECATED", "TIFF_MSC_DEPRECATED", 
+                "TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW", "CHECK_b1", 
+                "_TIFF_off_t", "_TIFF_stat_s")
+               .cppTypes().annotations());
+        
         infoMap.put(new Info("_TIFFField", "_TIFFFieldArray", "_TIFFRGBAImage")
                .skip());
         
