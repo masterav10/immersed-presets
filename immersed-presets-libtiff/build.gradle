@@ -210,6 +210,25 @@ task unzipLerc(type: Copy) {
 	into outputDir
 }
 
+task compileLercLibrary(type:Exec, dependsOn: unzipLerc) {
+	workingDir "${lercHome}/src/LercLib"
+
+	commandLine "cl.exe", 
+				"/c", "/nologo", "/W3", "/WX-", "/diagnostics:column", "/sdl", "/O2", "/Ob2", "/Oi", "/Ot", "/D", 
+				"_MBCS", "/Gm-", "/EHsc", "/MD", "/GS", "/Gy", "/fp:precise", "/Zc:wchar_t", "/Zc:forScope", 
+				"/Zc:inline", "/Fd\"LERC.PDB\"", "/external:W3", "/Gd", "/TP", "/FC", "BITMASK.CPP", "BITSTUFFER2.CPP", 
+				"HUFFMAN.cpp", "LERC.CPP", "LERC1DECODE\\BITSTUFFER.CPP", "LERC1DECODE\\CNTZIMAGE.CPP", "LERC2.CPP", 
+				"LERC_C_API_IMPL.CPP", "RLE.CPP"
+}
+
+task buildLercLibrary(type:Exec, dependsOn: compileLercLibrary) {
+	workingDir "${lercHome}/src/LercLib"
+	
+	commandLine "lib.exe", 
+				"/OUT:\"LercLib.lib\"", "/NOLOGO", "/MACHINE:X64", "BITMASK.OBJ", "BITSTUFFER2.OBJ", "HUFFMAN.OBJ", 
+				"LERC.OBJ", "BITSTUFFER.OBJ", "CNTZIMAGE.OBJ", "LERC2.OBJ", "LERC_C_API_IMPL.OBJ", "RLE.OBJ"
+}
+
 task unzipLibLzma(type: Copy) {
 	def zipPath = project.configurations.zip.find {it.name.startsWith("xz") }
 	def zipFile = file(zipPath)
@@ -297,7 +316,7 @@ task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff,
                                                     buildLibDeflateLibrary, 
                                                     buildJBigLibrary, 
                                                     compileLibJpegTurbo, 
-                                                    unzipLerc, 
+                                                    buildLercLibrary, 
                                                     buildLibLzmaLibrary, 
                                                     buildZstdLibrary, 
                                                     buildWebpLibrary]) {
@@ -322,7 +341,7 @@ task generateLibTiffProjects(type:Exec, dependsOn: [unzipLibTiff,
 	            "-D", "JPEG_INCLUDE_DIR=${jpegIncDir}",
 	        	"-D", "JBIG_LIBRARY=${jBigDir}/libjbig.lib",
 	          	"-D", "JBIG_INCLUDE_DIR=${jBigDir}",
-	        	"-D", "LERC_LIBRARY=${lercDir}/bin/windows/Lerc.lib",
+	        	"-D", "LERC_LIBRARY=${lercHome}/src/LercLib/LercLib.lib",
 	        	"-D", "LERC_INCLUDE_DIR=${lercDir}/src/LercLib",
 	        	"-D", "LIBLZMA_LIBRARY=${lzmaDir}/windows/vs2019/Release/x64/liblzma/liblzma.lib",
 	        	"-D", "LIBLZMA_INCLUDE_DIR=${lzmaDir}/src/liblzma/api",
@@ -354,7 +373,7 @@ javacppGenerate {
 	systemProperties["libtiff.bin.jpeg"] = "${libJpegTurboHome}"
 	systemProperties["libtiff.bin.deflate"] = "${libDeflateHome}/Release"
 	systemProperties["libtiff.bin.jbig"] = "${jBigHome}"
-	systemProperties["libtiff.bin.lerc"] = "${lercHome}/bin/windows"
+	systemProperties["libtiff.bin.lerc"] = "${lercHome}/src/LercLib"
 	systemProperties["libtiff.bin.lzma"] = "${lzmaHome}/windows/vs2019/Release/x64/liblzma"
 	systemProperties["libtiff.bin.zstd"] = "${zstdHome}/build/cmake/lib/Release"
 	systemProperties["libtiff.bin.webp"] = "${webpHome}/output/release-static/x64/lib"

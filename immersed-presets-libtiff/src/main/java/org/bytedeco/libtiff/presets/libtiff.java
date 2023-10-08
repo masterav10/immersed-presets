@@ -27,8 +27,8 @@ import org.bytedeco.systems.presets.windows;
                   "tiff.h", "tiffvers.h", "tiffio.h"
               },
               link = {
-                  "tiff", "tiffxx", "zlibstatic", "jpeg", "deflatestatic", "libjbig", 
-                  "Lerc", "liblzma", "zstd_static", "libwebp"
+                  "tiff", "tiffxx", "zlibstatic", "deflatestatic", "jpeg-static", "libjbig", 
+                  "LercLib", "liblzma", "zstd_static", "libwebp"
               },
               define = {
                   "LOGLUV_PUBLIC 1", "TIFF_DISABLE_DEPRECATED 1"
