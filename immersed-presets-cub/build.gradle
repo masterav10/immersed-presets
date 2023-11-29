@@ -30,7 +30,7 @@ javacppJniGenerate {
 
 	doFirst {
 		args "-nodelete"
-		// args "-Xcompiler", "--gpu-architecture=sm_60"
+		args "-Xcompiler", "--gpu-architecture=all"
 		// issue with /GL and Thurst: https://github.com/bytedeco/javacpp/issues/485
 		args "-Xcompiler", "-Xcompiler=-GL-"
 		// args "-Xcompiler", "--std=c++14"
