@@ -1,0 +1,148 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+ext {
+	nativeLibHome = "${buildDir}/unpacked/dist"
+	dngSdkHome= "${nativeLibHome}/dng_sdk_1_6"
+	vcPlatform = "x64"
+	vcConfig = "Release"
+}
+
+version "$dngVersion-$javacppPresetVersion"
+
+repositories {
+    ivy {
+    	// Manually download from here: 'ftp://ftp.adobe.com/pub/adobe/dng'
+        url 'file://C:/Tools'
+
+		// adobe/dng/dng-sdk_1.6.0.zip
+        patternLayout {
+            artifact '/[organisation]/dng/[module]_[revision].[ext]'
+        }
+
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+    
+    ivy {
+    	url 'https://github.com'
+    	
+    	patternLayout {
+            artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+    
+    ivy {
+    	url 'https://zlib.net/zlib131.zip'
+    	
+    	patternLayout {
+            artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+    
+    ivy {
+    	url 'https://github.com'
+    	
+    	patternLayout {
+            artifact '/[organisation]/[module]/archive/refs/tags/v[revision].[ext]'
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+}
+
+configurations {
+	zip
+}
+
+dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+	
+	zip "adobe:dng-sdk:$dngVersion@zip"
+	zip "adobe:jpeg:9c@zip"
+	zip "libexpat:libexpat:R_2_5_0@zip"
+	zip "madler:zlib:1.3.1@zip"
+}
+
+task unzipDngSdk(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("dng-sdk") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${nativeLibHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
+
+task unzipJpeg(type: Copy, dependsOn: unzipDngSdk) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("jpeg") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${dngSdkHome}/libjpeg")
+	
+	from (zipTree(zipFile)) {
+		include "jpeg-9c/**"
+		eachFile { fcd ->
+			fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
+		}
+		includeEmptyDirs = false
+	}
+	into outputDir
+}
+
+task unzipLibexpat(type: Copy, dependsOn: unzipDngSdk) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libexpat") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${dngSdkHome}/xmp/toolkit/XMPCore/third-party/expat/public/lib")
+	
+	from (zipTree(zipFile)) {
+		include "libexpat-R_2_5_0/expat/lib/**"
+		eachFile { fcd ->
+			fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(3))
+		}
+		includeEmptyDirs = false
+	}
+	into outputDir
+}
+
+task unzipZlib(type: Copy, dependsOn: unzipDngSdk) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("zlib") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${dngSdkHome}/xmp/toolkit/third-party/zlib")
+	
+	from (zipTree(zipFile)) {
+		include "zlib-1.3.1/**.c"
+		include "zlib-1.3.1/**.h"
+		eachFile { fcd ->
+			fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
+		}
+		includeEmptyDirs = false
+	}
+	into outputDir
+}
+
+task unzipAll(type: Copy, dependsOn: [unzipZlib, unzipLibexpat, unzipJpeg])
+
+
+javacppGenerate {
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+	
+	doFirst {
+		args "-nodelete"
+	}
+}
