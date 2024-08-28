@@ -173,9 +173,12 @@ task linkDngSdk(type:Exec, dependsOn: compileDngSdk) {
 				"*.obj"
 }
 
-javacppGenerate {
-	systemProperties['dngsdk.src'] = "${dngSdkHome}/source"
+javacppGenerate.dependsOn linkDngSdk
 
+javacppGenerate {
+	systemProperties['dngsdk.src'] = "${dngSdkHome}/dng_sdk/source"
+	systemProperties["dngsdk.bin.${vcConfig}"] = "${dngSdkHome}/dng_sdk/projects/win/dng_validate/Validate ${vcConfig}/${vcPlatform}"
+	
 	debug = false
 }
 
