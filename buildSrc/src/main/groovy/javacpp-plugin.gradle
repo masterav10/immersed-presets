@@ -113,6 +113,10 @@ task javacppGenerate(type: JavaExec, dependsOn: compileJava) {
 	}
 }
 
+task javacppCleanGenerate(type: Delete) {
+	delete javacppGenerate.outputDir
+}
+
 compileJavacppJava.dependsOn javacppGenerate
 
 task javacppJniGenerate(type: JavaExec, dependsOn: compileJavacppJava) {
