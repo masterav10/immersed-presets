@@ -73,6 +73,9 @@ dependencies {
     api "org.bytedeco:javacpp:$javacppVersion"
     implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
 	
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	runtimeOnly "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
+	
 	zip "adobe:dng-sdk:$dngVersion@zip"
 	zip "adobe:jpeg:9c@zip"
 	zip "libexpat:libexpat:R_2_5_0@zip"
