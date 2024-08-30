@@ -8,7 +8,7 @@ ext {
 	xmpHome="${dngSdkHome}/xmp/toolkit"
 	
 	vcPlatform = "x64"
-	vcConfig = "Debug"
+	vcConfig = "Release"
 }
 
 version "$dngVersion-$javacppPresetVersion"
@@ -181,6 +181,7 @@ javacppGenerate.dependsOn linkDngSdk
 javacppGenerate {
 	systemProperties['dngsdk.src'] = "${dngSdkHome}/dng_sdk/source"
 	systemProperties["dngsdk.bin.${vcConfig}"] = "${dngSdkHome}/dng_sdk/projects/win/dng_validate/Validate ${vcConfig}/${vcPlatform}"
+	systemProperties["dngsdk.bin.xmp"] = "${dngSdkHome}/xmp/toolkit/public/libraries/windows_${vcPlatform}/${vcConfig}"
 	
 	debug = false
 }
@@ -190,5 +191,7 @@ javacppJniGenerate {
 	
 	doFirst {
 		args "-nodelete"
+		args "-Xcompiler", "-Xcompiler=-/MD-"
+		args "-Xcompiler", "/MT"
 	}
 }

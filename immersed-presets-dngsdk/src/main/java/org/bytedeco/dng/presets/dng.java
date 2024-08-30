@@ -36,9 +36,10 @@ import org.bytedeco.systems.presets.windows;
                     "dng_errors.h",
                     "dng_exceptions.h",
                     "dng_safe_arithmetic.h",
+                    "dng_rect.h",   // extra header we needed to add as a result of dng_classes.h
                     "dng_classes.h",
                     "dng_memory.h",
-                    "dng_utils.h",
+                    // "dng_utils.h",
                     "dng_string.h",
                     "dng_point.h",
                     "dng_auto_ptr.h",
@@ -48,7 +49,12 @@ import org.bytedeco.systems.presets.windows;
                     "dng_image_writer.h"
                 },
                 link = {
-                    "dng_validate"
+                    "dng_validate", "XMPCoreStaticRelease", "XMPFilesStaticRelease"
+                },
+                define = {
+                    "qWinOS 1", 
+                    "qDNGUseLibJPEG 1",
+                    "qDNGValidateTarget 1"
                 }
             )
         }
@@ -60,19 +66,19 @@ public class dng implements InfoMapper, LoadEnabled
     @Override
     public void map(InfoMap infoMap)
     {
-        infoMap.put(new Info(
-                "kMetadataSubset_CopyrightOnly", 
-                "kMetadataSubset_CopyrightAndContact",
-                "kMetadataSubset_All", 
-                "kMetadataSubset_AllExceptLocationInfo", 
-                "kMetadataSubset_AllExceptCameraInfo", 
-                "kMetadataSubset_AllExceptCameraAndLocation", 
-                "kMetadataSubset_AllExceptCameraRawInfo",
+        //@formatter:off
+        infoMap.put(new Info("kMetadataSubset_CopyrightOnly", "kMetadataSubset_CopyrightAndContact",
+                "kMetadataSubset_All", "kMetadataSubset_AllExceptLocationInfo", "kMetadataSubset_AllExceptCameraInfo",
+                "kMetadataSubset_AllExceptCameraAndLocation", "kMetadataSubset_AllExceptCameraRawInfo",
                 "kMetadataSubset_AllExceptCameraRawInfoAndLocation")
                .cppTypes("int").translate(false));
 
-        infoMap.put(new Info("hypot", "DNG_ALWAYS_INLINE", "MULUH", "MULSH")
+        infoMap.put(new Info("hypot", "DNG_ALWAYS_INLINE", "MULUH", "MULSH", "CHECK_SAFE_UINT32",
+                             "CHECK_SAFE_INT32", "__USE_BUILTIN_SMULL_OVERFLOW",
+                             "SafeInt64MultByClang", "DNG_NO_RETURN")
                .cppTypes().annotations());
+        
+        //@formatter:on
     }
 
     @Override
