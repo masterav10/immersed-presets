@@ -45,7 +45,8 @@ public class HeaderPrinter
             {
                 if (line.contains("#include") && !line.contains("<"))
                 {
-                    String header = line.replace("\"", "")
+                    String header = line.substring(0, line.lastIndexOf('"'))
+                                        .replace("\"", "")
                                         .replace("#include ", "");
 
                     if (!dependencies.contains(header))
@@ -70,7 +71,9 @@ public class HeaderPrinter
 
     public static void main(String[] args) throws IOException
     {
-        final Path relativePath = Paths.get("build", "unpacked", "dist", "dng_sdk_1_6", "dng_sdk", "source");
+        // final Path relativePath = Paths.get("build", "unpacked", "dist",
+        // "dng_sdk_1_6", "dng_sdk", "source");
+        final Path relativePath = Paths.get("build", "unpacked", "dist", "dng_sdk_1_6", "libjpeg");
 
         Path source = Paths.get("")
                            .toAbsolutePath()
@@ -108,8 +111,8 @@ public class HeaderPrinter
             sortedList.add(indexOfLastDependency, header);
         }
 
-        // printCompleteHeaders(source, files, sortedList);
-        printHeadersFor(source, "dng_image_writer.h", sortedList);
+        printCompleteHeaders(sortedList);
+        // printHeadersFor(source, "dng_image_writer.h", sortedList);
 
         // Paths.get("C:\\Users\\Dan
         // Avila\\git\\immersed-presets\\immersed-presets-dngsdk\\build\\unpacked\\dist\\dng_sdk_1_6\\dng_sdk\\source");

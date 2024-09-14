@@ -178,12 +178,29 @@ task linkDngSdk(type:Exec, dependsOn: compileDngSdk) {
 
 javacppGenerate.dependsOn linkDngSdk
 
+import java.nio.file.*
+
 javacppGenerate {
 	systemProperties['dngsdk.src'] = "${dngSdkHome}/dng_sdk/source"
+	systemProperties['dngsdk.src.libjpeg'] = "${dngSdkHome}/libjpeg"
 	systemProperties["dngsdk.bin.${vcConfig}"] = "${dngSdkHome}/dng_sdk/projects/win/dng_validate/Validate ${vcConfig}/${vcPlatform}"
 	systemProperties["dngsdk.bin.xmp"] = "${dngSdkHome}/xmp/toolkit/public/libraries/windows_${vcPlatform}/${vcConfig}"
 	
 	debug = false
+	
+	// XXx: Hack to deal with inner class bug
+	doLast {
+		def javaFile = fileTree(tasks["javacppGenerate"].outputDir){
+			include "**/dng_big_table_index_map.java"
+		}.each {
+			def path = it.toPath()
+			def lines = Files.readAllLines(path)
+			
+			lines.add(4, "import org.bytedeco.dng.dng_big_table_index.IndexEntry;")
+			
+			Files.write(path, lines, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)
+		}	
+	}
 }
 
 javacppJniGenerate {
