@@ -172,7 +172,7 @@ public class dng implements InfoMapper, LoadEnabled
                .cppTypes("String").translate(false));
         
         // abstract classes
-        infoMap.put(new Info("dng_1d_function")
+        infoMap.put(new Info("dng_1d_function", "dng_negative")
                .purify(false).virtualize());
         
         // skip because jpeg stuff is complicated
@@ -192,16 +192,16 @@ public class dng implements InfoMapper, LoadEnabled
                 .skip());
         
         // XXX: These fail because const in template.
-        infoMap.put(new Info("dng_ifd::fMaskedRGBTables", 
-                             "dng_ifd::fProfileGainTableMap", 
-                             "dng_ifd::fSemanticXMP",
-                             "dng_negative::SetMaskedRGBTables", 
-                             "dng_negative::SetProfileGainTableMap",
-                             "dng_negative::ShareMaskedRGBTables", 
-                             "dng_negative::ShareProfileGainTableMap",
-                             "dng_semantic_mask::fXMP",
-                             "dng_semantic_mask::fMask",
-                             "dng_semantic_mask_preview::fImage",
+        infoMap.put(new Info(//"dng_ifd::fMaskedRGBTables", 
+                             //"dng_ifd::fProfileGainTableMap", 
+                             //"dng_ifd::fSemanticXMP",
+                             //"dng_negative::SetMaskedRGBTables", 
+                             //"dng_negative::SetProfileGainTableMap",
+                             //"dng_negative::ShareMaskedRGBTables", 
+                             //"dng_negative::ShareProfileGainTableMap",
+                             //"dng_semantic_mask::fXMP",
+                             //"dng_semantic_mask::fMask",
+                             //"dng_semantic_mask_preview::fImage",
                              "dng_shared::fBigTableOffsets",
                              "dng_shared::fBigTableByteCounts",
                              "dng_shared::fExtraCameraProfiles",
@@ -211,9 +211,13 @@ public class dng implements InfoMapper, LoadEnabled
                              ) 
                 .skip());
         
+        constTemplate(infoMap, "std::shared_ptr<const dng_memory_block>",
+                               "std::shared_ptr<const dng_masked_rgb_tables>",
+                               "std::shared_ptr<const dng_gain_table_map>",
+                               "std::shared_ptr<const dng_image>");
+        
         // XXX: These fail for reasons I'm not sure
-        infoMap.put(new Info("dng_stream::AsMemoryBlock"
-                ) 
+        infoMap.put(new Info("dng_stream::AsMemoryBlock") 
                .skip());
         
         // explicit dng_noise_profile (const dng_std_vector<dng_noise_function> &functions
@@ -304,8 +308,8 @@ public class dng implements InfoMapper, LoadEnabled
 
             infoMap.put(new Info(type).pointerTypes(pointerType)
                                       .define());
-            
-            if(type.contains("AutoPtr"))
+
+            if (type.contains("AutoPtr"))
             {
                 // Reason we need to skip
                 // error C2512: '<template_type>': no appropriate default constructor available
@@ -315,7 +319,42 @@ public class dng implements InfoMapper, LoadEnabled
     }
 
     /**
+     * Creates a proper method for template types that include const in it.
      * 
+     * @param infoMap
+     * @param type
+     */
+    private static void constTemplate(InfoMap infoMap, String... types)
+    {
+        for (String type : types)
+        {
+            Info info = new Info(type);
+
+            if (type.startsWith("std::shared_ptr"))
+            {
+                info.annotations("@SharedPtr");
+            }
+
+            String template = type.split("[<>]")[1];
+            String variable = template.replace("const ", "");
+            String valueType = String.format("@Cast({\"%s*\", \"%s\"}) %s", template, type, variable);
+            info.valueTypes(valueType);
+            
+            infoMap.put(info);
+        }
+    }
+
+    /**
+     * Ensures that fields with read-only types are read-only in java. For instance
+     * will deleted destructors.
+     * 
+     * <p>
+     * https://github.com/bytedeco/javacpp/wiki/Mapping-Recipes#defining-wrappers-for-basic-c-containers
+     * </p>
+     * 
+     * @param infoMap
+     * @param classAndField
+     * @param type
      */
     private static void readOnly(InfoMap infoMap, String classAndField, String type)
     {
@@ -329,7 +368,7 @@ public class dng implements InfoMapper, LoadEnabled
 
     @Override
     public void init(ClassProperties properties)
-    {        
+    {
         copyFromBuild(properties, "platform.includepath", "dngsdk.src");
         copyFromBuild(properties, "platform.linkpath", "dngsdk.bin");
     }
