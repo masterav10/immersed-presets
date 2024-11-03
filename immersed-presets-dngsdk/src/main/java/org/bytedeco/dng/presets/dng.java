@@ -146,6 +146,20 @@ public class dng implements InfoMapper, LoadEnabled
     public void map(InfoMap infoMap)
     {
         //@formatter:off
+        
+        // https://github.com/bytedeco/javacpp-presets/issues/1548
+        infoMap.put(new Info("basic/containers").cppTypes("dng_std_vector"));
+        
+        // data types
+        infoMap.put(new Info("uint64")
+               .cast().valueTypes("long").pointerTypes("LongPointer", "LongBuffer", "long[]"));
+        
+        infoMap.put(new Info("uint32")
+               .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
+        
+        infoMap.put(new Info("real64")
+               .cast().valueTypes("double").pointerTypes("DoublePointer", "DoubleBuffer", "double[]"));  
+        
         infoMap.put(new Info("qDNGXMPDocOps").define(!qDNGValidateTarget()));
         infoMap.put(new Info("qAndroid").define(false));
         
@@ -195,25 +209,6 @@ public class dng implements InfoMapper, LoadEnabled
                                "std::shared_ptr<const dng_masked_rgb_tables>",
                                "std::shared_ptr<const dng_gain_table_map>",
                                "std::shared_ptr<const dng_image>");
-
-        // https://github.com/bytedeco/javacpp-presets/issues/1548
-        infoMap.put(new Info("basic/containers").cppTypes("dng_std_vector"));
-        infoMap.put(new Info("uint64")
-               .cast().valueTypes("long").pointerTypes("LongPointer", "LongBuffer", "long[]"));
-        infoMap.put(new Info("dng_std_vector<uint64>").pointerTypes("dng_std_vector_uint64").define());
-        
-        infoMap.put(new Info("uint32")
-               .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
-        infoMap.put(new Info("dng_std_vector<uint32>").pointerTypes("dng_std_vector_uint32").define());
-        
-        infoMap.put(new Info("dng_std_vector<dng_fingerprint>").pointerTypes("dng_std_vector_dng_fingerprint").define());
-        infoMap.put(new Info("dng_std_vector<dng_camera_profile_info>").pointerTypes("dng_std_vector_dng_camera_profile_info").define());
-        infoMap.put(new Info("dng_std_vector<dng_point_real64>").pointerTypes("dng_std_vector_dng_point_real64").define());
-        
-        infoMap.put(new Info("real64")
-               .cast().valueTypes("double").pointerTypes("DoublePointer", "DoubleBuffer", "double[]"));
-        infoMap.put(new Info("dng_std_vector<real64>").pointerTypes("dng_std_vector_real64").define());
-         
         
         // XXX: These fail for reasons I'm not sure
         infoMap.put(new Info("dng_stream::AsMemoryBlock") 
@@ -252,7 +247,13 @@ public class dng implements InfoMapper, LoadEnabled
                                 "AutoPtr<dng_preview>",
                                 "AutoPtr<dng_image>",
                                 "AutoArray<AutoPtr<dng_memory_block> >",
-                                "AutoPtr<dng_1d_table>");
+                                "AutoPtr<dng_1d_table>",
+                                "dng_std_vector<dng_fingerprint>",
+                                "dng_std_vector<dng_camera_profile_info>",
+                                "dng_std_vector<dng_point_real64>",
+                                "dng_std_vector<uint32>",
+                                "dng_std_vector<uint64>",
+                                "dng_std_vector<real64>");
         
         // workaround for uncopyable being read-only
         // error C2280: attempting to reference a deleted function
