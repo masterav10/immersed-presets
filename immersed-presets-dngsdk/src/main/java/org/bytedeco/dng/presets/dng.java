@@ -191,30 +191,29 @@ public class dng implements InfoMapper, LoadEnabled
         infoMap.put(new Info("dng_image_table::ShareImage", "dng_jpeg_image::fJPEGData")
                 .skip());
         
-        // XXX: These fail because const in template.
-        infoMap.put(new Info(//"dng_ifd::fMaskedRGBTables", 
-                             //"dng_ifd::fProfileGainTableMap", 
-                             //"dng_ifd::fSemanticXMP",
-                             //"dng_negative::SetMaskedRGBTables", 
-                             //"dng_negative::SetProfileGainTableMap",
-                             //"dng_negative::ShareMaskedRGBTables", 
-                             //"dng_negative::ShareProfileGainTableMap",
-                             //"dng_semantic_mask::fXMP",
-                             //"dng_semantic_mask::fMask",
-                             //"dng_semantic_mask_preview::fImage",
-                             "dng_shared::fBigTableOffsets",
-                             "dng_shared::fBigTableByteCounts",
-                             "dng_shared::fExtraCameraProfiles",
-                             "dng_shared::fBigTableDigests",
-                             "dng_tone_curve::fCoord",
-                             "dng_vignette_radial_params::fParams"
-                             ) 
-                .skip());
-        
         constTemplate(infoMap, "std::shared_ptr<const dng_memory_block>",
                                "std::shared_ptr<const dng_masked_rgb_tables>",
                                "std::shared_ptr<const dng_gain_table_map>",
                                "std::shared_ptr<const dng_image>");
+
+        // https://github.com/bytedeco/javacpp-presets/issues/1548
+        infoMap.put(new Info("basic/containers").cppTypes("dng_std_vector"));
+        infoMap.put(new Info("uint64")
+               .cast().valueTypes("long").pointerTypes("LongPointer", "LongBuffer", "long[]"));
+        infoMap.put(new Info("dng_std_vector<uint64>").pointerTypes("dng_std_vector_uint64").define());
+        
+        infoMap.put(new Info("uint32")
+               .cast().valueTypes("int").pointerTypes("IntPointer", "IntBuffer", "int[]"));
+        infoMap.put(new Info("dng_std_vector<uint32>").pointerTypes("dng_std_vector_uint32").define());
+        
+        infoMap.put(new Info("dng_std_vector<dng_fingerprint>").pointerTypes("dng_std_vector_dng_fingerprint").define());
+        infoMap.put(new Info("dng_std_vector<dng_camera_profile_info>").pointerTypes("dng_std_vector_dng_camera_profile_info").define());
+        infoMap.put(new Info("dng_std_vector<dng_point_real64>").pointerTypes("dng_std_vector_dng_point_real64").define());
+        
+        infoMap.put(new Info("real64")
+               .cast().valueTypes("double").pointerTypes("DoublePointer", "DoubleBuffer", "double[]"));
+        infoMap.put(new Info("dng_std_vector<real64>").pointerTypes("dng_std_vector_real64").define());
+         
         
         // XXX: These fail for reasons I'm not sure
         infoMap.put(new Info("dng_stream::AsMemoryBlock") 
