@@ -227,9 +227,6 @@ public class dng implements InfoMapper, LoadEnabled
         infoMap.put(new Info("std::shared_ptr<dng_masked_rgb_table>").annotations("@SharedPtr").pointerTypes("dng_masked_rgb_table"));
         infoMap.put(new Info("std::vector<std::shared_ptr<dng_masked_rgb_table> >").pointerTypes("dng_masked_rgb_table_ptr_vector").define());
         
-        // infoMap.put(new Info("std::shared_ptr<dng_masked_rgb_tables>").annotations("@SharedPtr").pointerTypes("dng_masked_rgb_tables"));
-        // infoMap.put(new Info("std::shared_ptr<dng_gain_table_map>").annotations("@SharedPtr").pointerTypes("dng_gain_table_map"));
-        
         // this might be cheating
         defineTemplate(infoMap, "AutoPtr<dng_memory_block>", 
                                 "AutoPtr<dng_camera_profile>", 
