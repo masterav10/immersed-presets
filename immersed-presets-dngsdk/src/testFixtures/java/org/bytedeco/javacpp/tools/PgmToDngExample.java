@@ -2,6 +2,9 @@ package org.bytedeco.javacpp.tools;
 
 import static org.bytedeco.global.dng.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.bytedeco.dng.autoptr_dng_camera_profile;
 import org.bytedeco.dng.autoptr_dng_image;
 import org.bytedeco.dng.dng_camera_profile;
@@ -20,14 +23,18 @@ import org.bytedeco.dng.dng_vector;
 import org.bytedeco.javacpp.BytePointer;
 
 /**
- * This 
+ * This
  */
 public class PgmToDngExample
 {
     public static void main(String... args)
     {
-        String outputFile = "C:\\Tools\\adobe\\pgm2dng-master\\Samples\\BMPCC-4K-StdA-D65.dng";
-        String dcpFile = "C:\\Tools\\adobe\\pgm2dng-master\\Samples\\BMPCC-4K-StdA-D65.dcp";
+        Path root = Paths.get("C:", "Tools", "adobe", "pgm2dng-master");
+        Path outputFile = root.resolve("Samples")
+                              .resolve("BMPCC-4K-StdA-D65.dng");
+        Path dcpFile = root.resolve("DCPprofiles")
+                           .resolve("Canon EOS 600D Lightroom profile.dcp");
+
         int[] wp = new int[]
         { 0, 0, 0 };
         double blackLevel = 0.0;
@@ -67,7 +74,7 @@ public class PgmToDngExample
 
         dng_rect imageBounds = new dng_rect(height, width);
         dng_image image = DNGHost.Make_dng_image(imageBounds, colorPlanes, bitsPerChannel == 8 ? ttByte : ttShort);
-        
+
         dng_pixel_buffer buffer = new dng_pixel_buffer();
         buffer.fArea(imageBounds);
         buffer.fPlane(0);
@@ -102,7 +109,7 @@ public class PgmToDngExample
 
             // Add camera profile to negative
             autoptr_dng_camera_profile profile = new autoptr_dng_camera_profile(new dng_camera_profile());
-            dng_file_stream profileStream = new dng_file_stream(dcpFile);
+            dng_file_stream profileStream = new dng_file_stream(dcpFile.toString());
 
             if (profile.Get()
                        .ParseExtended(profileStream))
@@ -140,7 +147,7 @@ public class PgmToDngExample
         negative.SynchronizeMetadata();
         negative.RebuildIPTC(true);
 
-        dng_file_stream DNGStream = new dng_file_stream(outputFile, true, 0);
+        dng_file_stream DNGStream = new dng_file_stream(outputFile.toString(), true, 0);
         dng_image_writer imgWriter = new dng_image_writer();
 
         imgWriter.WriteDNG(DNGHost, DNGStream, negative);
