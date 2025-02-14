@@ -42,13 +42,14 @@ public class cub implements InfoMapper
     public void map(InfoMap infoMap)
     {   
         infoMap.put(new Info(".*template.*", "CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED",
-                             "CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED", "").skip());
+                             "CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED", "DecomposerT").skip());
         infoMap.put(new Info("CUB_NAMESPACE_BEGIN").cppText("#define CUB_NAMESPACE_BEGIN namespace cub {").cppTypes());
         infoMap.put(new Info("CUB_NAMESPACE_END").cppText("#define CUB_NAMESPACE_END }").cppTypes());
         
         infoMap.put(new Info("CUB_RUNTIME_FUNCTION", 
                              "CUB_DETAIL_RUNTIME_DEBUG_SYNC_IS_NOT_SUPPORTED",
-                             "CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG")
+                             "CUB_DETAIL_RUNTIME_DEBUG_SYNC_USAGE_LOG",
+                             "_CCCL_FORCEINLINE")
                 .cppTypes().annotations());
         infoMap.put(new Info("DoubleBuffer").skip());
         
@@ -172,29 +173,52 @@ public class cub implements InfoMapper
 
     private static void device_reduce(InfoMap infoMap)
     {
+        // cub::DeviceReduce::Reduce<InputIteratorT,OutputIteratorT,ReductionOpT,T,NumItemsT>
+        // infoMap.put(new Info("cub::DeviceReduce::Reduce<float*,float*,ReductionOpT,T,unsigned int>").javaNames("Reduce"));
+        // infoMap.put(new Info("cub::DeviceReduce::Reduce<int*,int*,ReductionOpT,T,unsigned int>").javaNames("Reduce"));
+
         // cub::DeviceReduce::Reduce<InputIteratorT,OutputIteratorT,ReductionOpT,T>
         // infoMap.put(new Info("cub::DeviceReduce::Reduce<float*,float*,ReductionOpT,T>").javaNames("Reduce"));
         // infoMap.put(new Info("cub::DeviceReduce::Reduce<int*,int*,ReductionOpT,T>").javaNames("Reduce"));
 
+        // cub::DeviceReduce::Sum<InputIteratorT,OutputIteratorT,NumItemsT>
+        infoMap.put(new Info("cub::DeviceReduce::Sum<float*,float*,unsigned int>").javaNames("Sum"));
+        infoMap.put(new Info("cub::DeviceReduce::Sum<int*,int*,unsigned int>").javaNames("Sum"));
+
         // cub::DeviceReduce::Sum<InputIteratorT,OutputIteratorT>
-        infoMap.put(new Info("cub::DeviceReduce::Sum<float*,float*>").javaNames("Sum"));
-        infoMap.put(new Info("cub::DeviceReduce::Sum<int*,int*>").javaNames("Sum"));
+        //infoMap.put(new Info("cub::DeviceReduce::Sum<float*,float*>").javaNames("Sum"));
+        //infoMap.put(new Info("cub::DeviceReduce::Sum<int*,int*>").javaNames("Sum"));
+
+        // cub::DeviceReduce::Min<InputIteratorT,OutputIteratorT,NumItemsT>
+        infoMap.put(new Info("cub::DeviceReduce::Min<float*,float*,unsigned int>").javaNames("Min"));
+        infoMap.put(new Info("cub::DeviceReduce::Min<int*,int*,unsigned int>").javaNames("Min"));
 
         // cub::DeviceReduce::Min<InputIteratorT,OutputIteratorT>
-        infoMap.put(new Info("cub::DeviceReduce::Min<float*,float*>").javaNames("Min"));
-        infoMap.put(new Info("cub::DeviceReduce::Min<int*,int*>").javaNames("Min"));
+        //infoMap.put(new Info("cub::DeviceReduce::Min<float*,float*>").javaNames("Min"));
+        //infoMap.put(new Info("cub::DeviceReduce::Min<int*,int*>").javaNames("Min"));
 
         // cub::DeviceReduce::ArgMin<InputIteratorT,OutputIteratorT>
         // infoMap.put(new Info("cub::DeviceReduce::ArgMin<float*,float*>").javaNames("ArgMin"));
         // infoMap.put(new Info("cub::DeviceReduce::ArgMin<int*,int*>").javaNames("ArgMin"));
 
+        // cub::DeviceReduce::Max<InputIteratorT,OutputIteratorT,NumItemsT>
+        infoMap.put(new Info("cub::DeviceReduce::Max<float*,float*,unsigned int>").javaNames("Max"));
+        infoMap.put(new Info("cub::DeviceReduce::Max<int*,int*,unsigned int>").javaNames("Max"));
+
         // cub::DeviceReduce::Max<InputIteratorT,OutputIteratorT>
-        infoMap.put(new Info("cub::DeviceReduce::Max<float*,float*>").javaNames("Max"));
-        infoMap.put(new Info("cub::DeviceReduce::Max<int*,int*>").javaNames("Max"));
+        //infoMap.put(new Info("cub::DeviceReduce::Max<float*,float*>").javaNames("Max"));
+        //infoMap.put(new Info("cub::DeviceReduce::Max<int*,int*>").javaNames("Max"));
 
         // cub::DeviceReduce::ArgMax<InputIteratorT,OutputIteratorT>
         // infoMap.put(new Info("cub::DeviceReduce::ArgMax<float*,float*>").javaNames("ArgMax"));
         // infoMap.put(new Info("cub::DeviceReduce::ArgMax<int*,int*>").javaNames("ArgMax"));
+
+        // cub::DeviceReduce::TransformReduce<InputIteratorT,OutputIteratorT,ReductionOpT,TransformOpT,T,NumItemsT>
+        // infoMap.put(new Info("cub::DeviceReduce::TransformReduce<float*,float*,ReductionOpT,TransformOpT,T,unsigned int>").javaNames("TransformReduce"));
+        // infoMap.put(new Info("cub::DeviceReduce::TransformReduce<int*,int*,ReductionOpT,TransformOpT,T,unsigned int>").javaNames("TransformReduce"));
+
+        // cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,NumRunsOutputIteratorT,ReductionOpT,NumItemsT>
+        // infoMap.put(new Info("cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,unsigned int*,ReductionOpT,unsigned int>").javaNames("ReduceByKey"));
 
         // cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,NumRunsOutputIteratorT,ReductionOpT>
         // infoMap.put(new Info("cub::DeviceReduce::ReduceByKey<KeysInputIteratorT,UniqueOutputIteratorT,ValuesInputIteratorT,AggregatesOutputIteratorT,unsigned int*,ReductionOpT>").javaNames("ReduceByKey"));
