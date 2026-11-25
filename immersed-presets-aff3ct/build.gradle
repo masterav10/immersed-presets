@@ -49,9 +49,18 @@ task unzipAffectLibs(type: Copy) {
 	into outputDir
 }
 
+javacppGenerate.dependsOn unzipAffectLibs
+
 javacppGenerate {
-	systemProperties['libtiff.src'] = "${nativeLibHome}/include/aff3ct-${affectVersion}"
-	systemProperties['libtiff.bin.aff3ct'] = "${nativeLibHome}/lib"
+	systemProperties['aff3ct.src.1'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/aff3ct"
+	systemProperties['aff3ct.src.2'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/cli"
+	systemProperties['aff3ct.src.3'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/date"
+	systemProperties['aff3ct.src.4'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/json"
+	systemProperties['aff3ct.src.5'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/MIPP"
+	systemProperties['aff3ct.src.6'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/rang"
+	systemProperties['aff3ct.src.7'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/streampu"
+		
+	systemProperties['aff3ct.bin.aff3ct'] = "${nativeLibHome}/lib"
 	
 	debug = false
 }
@@ -61,6 +70,5 @@ javacppJniGenerate {
 
 	doFirst {
 		args "-nodelete"
-		args "-Xcompiler", "/Z7"
 	}
 }
