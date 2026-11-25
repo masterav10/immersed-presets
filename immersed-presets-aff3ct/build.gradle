@@ -1,0 +1,52 @@
+plugins {
+	id 'javacpp-plugin'
+}
+
+ext {
+	nativeLibHome = "${buildDir}/unpacked/dist"
+	dngSdkHome= "${nativeLibHome}/dng_sdk_1_6"
+	xmpHome="${dngSdkHome}/xmp/toolkit"
+	
+	vcPlatform = "x64"
+	vcConfig = "Release"
+	affectVersion = "4.7.4"
+	affectCommit = "f6aabe7fb"
+}
+
+version "$affectVersion-$javacppPresetVersion"
+
+repositories {    
+    ivy {
+    	url 'https://github.com/'
+    	
+        patternLayout {
+           	// aff3ct/aff3ct/releases/download/v4.7.4/aff3ct_v4_7_4_windows-gcc-x64-avx2_f6aabe7fb.zip
+           	def v2="${affectVersion}".replace(".", "_")
+	        artifact "/[organisation]/[module]/releases/download/v[revision]/[module]_v${v2}_windows-gcc-x64-avx2_${affectCommit}.[ext]"
+        }
+        
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
+        // is mandatory. Docs linked below this code section
+        metadataSources { artifact() } 
+    }
+}
+
+configurations {
+	zip
+}
+
+dependencies {
+    api "org.bytedeco:javacpp:$javacppVersion"
+    implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
+	
+	zip "aff3ct:aff3ct:4.7.4@zip"
+}
+
+task unzipAffectLibs(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("aff3ct") }
+	def zipFile = file(zipPath)
+	def outputDir = file("${nativeLibHome}")
+	
+	from zipTree(zipFile)
+	into outputDir
+}
