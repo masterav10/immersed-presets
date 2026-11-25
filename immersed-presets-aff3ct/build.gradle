@@ -4,9 +4,7 @@ plugins {
 
 ext {
 	nativeLibHome = "${buildDir}/unpacked/dist"
-	dngSdkHome= "${nativeLibHome}/dng_sdk_1_6"
-	xmpHome="${dngSdkHome}/xmp/toolkit"
-	
+
 	vcPlatform = "x64"
 	vcConfig = "Release"
 	affectVersion = "4.7.4"
@@ -39,7 +37,7 @@ dependencies {
     api "org.bytedeco:javacpp:$javacppVersion"
     implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
 	
-	zip "aff3ct:aff3ct:4.7.4@zip"
+	zip "aff3ct:aff3ct:${affectVersion}@zip"
 }
 
 task unzipAffectLibs(type: Copy) {
@@ -49,4 +47,20 @@ task unzipAffectLibs(type: Copy) {
 	
 	from zipTree(zipFile)
 	into outputDir
+}
+
+javacppGenerate {
+	systemProperties['libtiff.src'] = "${nativeLibHome}/include/aff3ct-${affectVersion}"
+	systemProperties['libtiff.bin.aff3ct'] = "${nativeLibHome}/lib"
+	
+	debug = false
+}
+
+javacppJniGenerate {
+	debug = false
+
+	doFirst {
+		args "-nodelete"
+		args "-Xcompiler", "/Z7"
+	}
 }
