@@ -46,16 +46,19 @@ public class aff3ct implements InfoMapper, LoadEnabled
     @Override
     public void map(InfoMap infoMap)
     {   
+        infoMap.put(new Info("Argument_link").purify(false).virtualize());
+        
         infoMap.put(new Info("std::vector<std::pair<std::string,std::string> >")
                .pointerTypes("HeaderList").define());
         infoMap.put(new Info("std::map<cli::Argument_tag,cli::Argument_info*>")
                .pointerTypes("ArgTagToArgInfoPtrMap").define());
-        infoMap.put(new Info("std::map<Argument_tag,Argument_info*>")
-               .pointerTypes("MotherT").define());
+
         infoMap.put(new Info("std::vector<std::string>")
                .pointerTypes("Argument_tag").define());
+        
         infoMap.put(new Info("std::vector<cli::Argument_link>")
                .pointerTypes("ArgumentLinkList").define());
+        
         infoMap.put(new Info("std::map<cli::Argument_tag,std::pair<std::string,cli::Argument_info*> >")
                .pointerTypes("ArgTagToPairOfStringArgInfoPtrMap").define());
         infoMap.put(new Info("std::map<std::string,std::string>")
