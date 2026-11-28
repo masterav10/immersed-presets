@@ -242,7 +242,7 @@ task generateLibLzma(type:Exec, dependsOn: unzipLibLzma) {
 	workingDir "${lzmaHome}"
 	
 	commandLine "cmake", 
-				"-G", "\"NMake Makefiles\"",
+				"-G", "\"Visual Studio 2019\"",
 				"-D", "CMAKE_BUILD_TYPE=${vcConfig}",
 				"."
 }
