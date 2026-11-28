@@ -7,20 +7,20 @@ ext {
 
 	vcPlatform = "x64"
 	vcConfig = "Release"
-	affectVersion = "4.7.4"
-	affectCommit = "f6aabe7fb"
+	libcorrectVersion = "1.0.0"
+	
+	libcorrectHome="${nativeLibHome}/libcorrect-${libcorrectVersion}"
 }
 
-version "$affectVersion-$javacppPresetVersion"
+version "$libcorrectVersion-$javacppPresetVersion"
 
 repositories {    
     ivy {
     	url 'https://github.com/'
     	
         patternLayout {
-           	// aff3ct/aff3ct/releases/download/v4.7.4/aff3ct_v4_7_4_windows-gcc-x64-avx2_f6aabe7fb.zip
-           	def v2="${affectVersion}".replace(".", "_")
-	        artifact "/[organisation]/[module]/releases/download/v[revision]/[module]_v${v2}_windows-gcc-x64-avx2_${affectCommit}.[ext]"
+           	// masterav10/libcorrect/archive/refs/tags/v1.0.0.zip
+	        artifact '/[organisation]/[module]/archive/refs/tags/v[revision].[ext]'
         }
         
         // This is required in Gradle 6.0+ as metadata file (ivy.xml) 
@@ -37,30 +37,46 @@ dependencies {
     api "org.bytedeco:javacpp:$javacppVersion"
     implementation "org.bytedeco:javacpp:$javacppVersion:$javacppPlatform"
 	
-	zip "aff3ct:aff3ct:${affectVersion}@zip"
+	api "org.bytedeco:systems:$javacppPresetVersion"
+	runtimeOnly "org.bytedeco:systems:$javacppPresetVersion:$javacppPlatform"
+	
+	zip "masterav10:libcorrect:${libcorrectVersion}@zip"
 }
 
-task unzipAffectLibs(type: Copy) {
-	def zipPath = project.configurations.zip.find {it.name.startsWith("aff3ct") }
+task unzipLibcorrect(type: Copy) {
+	def zipPath = project.configurations.zip.find {it.name.startsWith("libcorrect") }
 	def zipFile = file(zipPath)
 	def outputDir = file("${nativeLibHome}")
 	
 	from zipTree(zipFile)
 	into outputDir
+	
+	doLast {
+		mkdir "${libcorrectHome}/build"
+	}
 }
 
-javacppGenerate.dependsOn unzipAffectLibs
+task generateLibcorrectProjects(type:Exec, dependsOn: unzipLibcorrect) {
+	workingDir "${libcorrectHome}/build"
+	
+	commandLine "cmake", ".."
+}
+
+task compileLibcorrect(type:Exec, dependsOn: generateLibcorrectProjects) {
+	workingDir "${libcorrectHome}/build"
+
+	commandLine "msbuild",
+				"Correct.sln",
+				"-t:correct_static",
+				"-p:Configuration=${vcConfig}",
+				"-p:Platform=${vcPlatform}"
+}
+
+javacppGenerate.dependsOn 'compileLibcorrect'
 
 javacppGenerate {
-	systemProperties['aff3ct.src.1'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/aff3ct"
-	systemProperties['aff3ct.src.2'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/cli"
-	systemProperties['aff3ct.src.3'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/date"
-	systemProperties['aff3ct.src.4'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/json"
-	systemProperties['aff3ct.src.5'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/MIPP"
-	systemProperties['aff3ct.src.6'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/rang"
-	systemProperties['aff3ct.src.7'] = "${nativeLibHome}/include/aff3ct-${affectVersion}/streampu"
-		
-	systemProperties['aff3ct.bin.aff3ct'] = "${nativeLibHome}/lib"
+	systemProperties['libcorrect.src'] = "${libcorrectHome}/include"
+	systemProperties['libcorrect.bin'] = "${libcorrectHome}/build/lib/Release"
 	
 	debug = false
 }
